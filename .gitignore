@@ -1,0 +1,5 @@
+.my_credentials*
+__pycache__/
+
+#Ignore because in obsidian vault
+plan_overview.md

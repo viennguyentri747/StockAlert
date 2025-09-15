@@ -1,15 +1,15 @@
 {
   "aapl-200": {
-    "cooldown_sec": 300,
+    "cooldown_sec": 5,
     "kind": "price",
-    "last_trigger_ts": 1757892574.8475287,
+    "last_trigger_ts": 1757905512.0455062,
     "name": "aapl-200",
     "op": ">=",
     "symbol": "AAPL",
     "value": 200.0
   },
   "aapl-vol": {
-    "cooldown_sec": 10,
+    "cooldown_sec": 300,
     "kind": "volume",
     "last_trigger_ts": 1757889753.9736335,
     "name": "aapl-vol",
@@ -18,7 +18,7 @@
     "value": 1000000.0
   },
   "enum-vol": {
-    "cooldown_sec": 10,
+    "cooldown_sec": 300,
     "kind": "volume",
     "last_trigger_ts": 1757889753.9736335,
     "name": "enum-vol",
@@ -29,7 +29,7 @@
   "msft-300": {
     "cooldown_sec": 5,
     "kind": "price",
-    "last_trigger_ts": 1757892574.8475287,
+    "last_trigger_ts": 1757905512.0455062,
     "name": "msft-300",
     "op": ">=",
     "symbol": "MSFT",

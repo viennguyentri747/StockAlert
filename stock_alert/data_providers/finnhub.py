@@ -2,17 +2,16 @@ import json
 from typing import Optional
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 from ..core import Quote
 from .base import DataProvider
-from dev_common.core_utils import read_value_from_credential_file
-from dev_common.constants import CREDENTIALS_FILE, FINNHUB_API_KEY_KEY
-from pathlib import Path
+from ..common.utils import read_value_from_credential_file
+from ..common.constants import CREDENTIALS_FILE_PATH, FINNHUB_API_KEY
 
 
 class FinnhubProvider(DataProvider):
     """Finnhub quote API.
-
     Credential key: FINNHUB_API_KEY in .my_credential.env
     Endpoint: https://finnhub.io/api/v1/quote?symbol=SYM&token=KEY
     Free tier: yes (rate limited).
@@ -21,7 +20,7 @@ class FinnhubProvider(DataProvider):
     BASE_URL = "https://finnhub.io/api/v1/quote"
 
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or read_value_from_credential_file(str(Path.cwd() / CREDENTIALS_FILE), FINNHUB_API_KEY_KEY)
+        self.api_key = api_key or read_value_from_credential_file(CREDENTIALS_FILE_PATH, FINNHUB_API_KEY)
         if not self.api_key:
             raise ValueError("FINNHUB_API_KEY not set in credentials file .my_credential.env")
 

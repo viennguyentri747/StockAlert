@@ -1,4 +1,3 @@
-from .runner import seconds_from_interval, run_loop
+from .runner import run_loop, run_check
 
-__all__ = ["seconds_from_interval", "run_loop"]
-
+__all__ = ["run_loop", "run_check"]

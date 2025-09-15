@@ -1,8 +1,8 @@
 import re
 import time
 from dataclasses import dataclass, asdict
-from typing import Optional, Tuple
-from dev_common.constants import AlertKind, Operation
+from typing import Optional, Tuple, Dict, Any
+from ..common.constants import *
 
 
 @dataclass
@@ -22,6 +22,24 @@ class Alert:
     value: float
     cooldown_sec: int = 300
     last_trigger_ts: Optional[float] = None
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Alert":
+        return cls(
+            name=d[ALERT_FIELD_NAME],
+            symbol=d[ALERT_FIELD_SYMBOL],
+            kind=AlertKind(d[ALERT_FIELD_KIND]),
+            op=Operation(d[ALERT_FIELD_OP]),
+            value=d[ALERT_FIELD_VALUE],
+            cooldown_sec=d[ALERT_FIELD_ALERT_COOLDOWN],
+            last_trigger_ts=d[ALERT_FIELD_LAST_TRIGGER_TS],
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        d = asdict(self)
+        d["kind"] = self.kind.value
+        d["op"] = self.op.value
+        return d
 
     def should_trigger(self, q: Quote, now_ts: float) -> Tuple[bool, str]:
         if self.kind == AlertKind.PRICE:

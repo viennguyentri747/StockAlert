@@ -1,39 +1,41 @@
-Stock Alert (CLI MVP)
+Stock Alert (CLI)
 =====================
 
-Quick, local CLI for managing watchlists and simple alerts, and running an evaluation loop with a fake data provider (no network needed). By default, data is stored in `./.stockalert` (set `STOCKALERT_HOME` to override, e.g., `~/.stockalert`).
+A command-line tool for managing stock watchlists and price alerts. By default, data is stored in `./.stockalert` (set `STOCKALERT_HOME` to override, e.g., `~/.config/stockalert`).
 
-Install/Run
------------
+Install
+-------
 
 - Requires Python 3.9+
-- Run via module:
-
-  - `python -m stock_alert --help`
+- Clone the repository and install in editable mode:
+  \`\`\`bash
+  pip install -e .
+  \`\`\`
 
 Example Usage
 -------------
 
-- Add symbols to watchlist:
-  - `python -m stock_alert watchlist add AAPL MSFT TSLA`
-- List watchlist:
-  - `python -m stock_alert watchlist list`
-- Create an alert:
-  - `python -m stock_alert alert create --symbol AAPL --when "price >= 200" --name aapl-200`
-  - `python -m stock_alert alert create --symbol TSLA --when "pct_day <= -3" --name tsla-drop`
-- List alerts:
-  - `python -m stock_alert alerts`
-- Run the loop (2 iterations, 5s interval, verbose):
-  - `python -m stock_alert run --interval 5s --verbose --provider finnhub`
-  - Use real data (Yahoo, no key): `python -m stock_alert run --provider yahoo`
-  - Alpha Vantage (requires key): `ALPHAVANTAGE_API_KEY=... python -m stock_alert run --provider alphavantage`
-  - Finnhub (requires key): `FINNHUB_API_KEY=... python -m stock_alert run --provider finnhub`
+The tool is split into a main launcher (`stock-alert`) and sub-tools (`manage`, `monitor`).
+
+### Manage Watchlist and Alerts (`stock-alert manage`)
+
+- Add symbols to watchlist: `stock-alert manage watchlist add AAPL MSFT TSLA`
+- List watchlist: `stock-alert manage watchlist list`
+- Create an alert: `stock-alert manage alert create --symbol AAPL --when "price >= 200" --name aapl-200`
+- List alerts: `stock-alert manage alerts`
+
+### Monitor Stocks (`stock-alert monitor`)
+
+- Run the monitoring loop: `stock-alert monitor --interval 5s --verbose`
+- Use real data providers (some require API keys set in `.my_credential.env`):
+  - Yahoo (no key): `stock-alert monitor --provider yahoo`
+  - Alpha Vantage: `stock-alert monitor --provider alphavantage`
+  - Finnhub: `stock-alert monitor --provider finnhub`
 
 Notes
 -----
 
 - This MVP uses a fake data provider with deterministic-ish prices and random day % changes.
 - Real providers available: Yahoo Finance (no key), Alpha Vantage, Finnhub (both require API keys; free tiers exist and are rate limited).
-- Files created under `~/.stockalert/`: `watchlist.json`, `alerts.json`, `config.json`.
-- Conditions supported: `price >=|<= VALUE`, `pct_day >=|<= VALUE`.
-# StockAlert
+- Files created under `$STOCKALERT_HOME/`: `watchlist.json`, `alerts.json`.
+- Conditions supported: `price >=|<= VALUE`, `pct_day >=|<= VALUE`, `volume >=|<= VALUE`.

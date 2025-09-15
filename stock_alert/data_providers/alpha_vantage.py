@@ -2,17 +2,16 @@ import json
 from typing import Optional
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 from ..core import Quote
 from .base import DataProvider
-from dev_common.core_utils import read_value_from_credential_file
-from dev_common.constants import CREDENTIALS_FILE, ALPHAVANTAGE_API_KEY_KEY
-from pathlib import Path
+from ..common.utils import read_value_from_credential_file
+from ..common.constants import CREDENTIALS_FILE_PATH, ALPHAVANTAGE_API_KEY
 
 
 class AlphaVantageProvider(DataProvider):
     """Alpha Vantage Global Quote API.
-
     Credential key: ALPHAVANTAGE_API_KEY in .my_credential.env
     Endpoint: https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SYM&apikey=KEY
     Free tier: yes (rate limited).
@@ -21,7 +20,7 @@ class AlphaVantageProvider(DataProvider):
     BASE_URL = "https://www.alphavantage.co/query"
 
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or read_value_from_credential_file(str(Path.cwd() / CREDENTIALS_FILE), ALPHAVANTAGE_API_KEY_KEY)
+        self.api_key = api_key or read_value_from_credential_file(CREDENTIALS_FILE_PATH, ALPHAVANTAGE_API_KEY)
         if not self.api_key:
             raise ValueError("ALPHAVANTAGE_API_KEY not set in credentials file .my_credential.env")
 
@@ -45,7 +44,6 @@ class AlphaVantageProvider(DataProvider):
             pct_day = float(str(pct_raw).strip().rstrip("%"))
         except ValueError:
             pct_day = 0.0
-        # Alpha Vantage Global Quote may include volume as "06. volume"
         try:
             volume = int(quote.get("06. volume") or quote.get("volume") or 0)
         except (TypeError, ValueError):

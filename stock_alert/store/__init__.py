@@ -1,5 +1,4 @@
 from .files import (
-    get_app_dir,
     load_watchlist,
     save_watchlist,
     load_alerts,

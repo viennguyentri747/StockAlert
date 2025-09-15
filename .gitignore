@@ -1,5 +1,6 @@
 .my_credentials*
 __pycache__/
+MyVenvFolder/
 
 #Ignore because in obsidian vault
 plan_overview.md

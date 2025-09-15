@@ -7,11 +7,9 @@ LINE_SEPARATOR_NO_ENDLINE = f"{'=' * 60}"
 
 
 # Data filenames
-WATCHLIST_FILE = "watchlist.json"
-ALERTS_FILE = "alerts.json"
 CONFIG_FILE = "config.json"
+CACHE_FILE = "cache_data.json"
 
-# Defaults
 DEFAULT_INTERVAL = "5s"
 DEFAULT_COOLDOWN_SEC = 300
 
@@ -40,7 +38,10 @@ ALERT_FIELD_KIND = "kind"
 ALERT_FIELD_VALUE = "value"
 ALERT_FIELD_OP = "op"
 ALERT_FIELD_ALERT_COOLDOWN = "alert_cooldown_secs"
-ALERT_FIELD_LAST_TRIGGER_TS = "last_trigger_ts"
+CACHE_FIELD_LAST_ALERT_TRIGGER_TS = "last_alert_trigger_ts"
+
+CACHE_FIELD_MAX_SIZE_BYTES = "max_size_bytes"
+CACHE_FIELD_NUM_ROTATED_FILES = "num_rotated_files"
 
 # Credential key names
 ALPHAVANTAGE_API_KEY = "ALPHAVANTAGE_API_TOKEN"

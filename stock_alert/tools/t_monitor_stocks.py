@@ -20,7 +20,9 @@ from stock_alert.store import (
     load_alerts,
     load_watchlist,
     save_alerts,
+    load_config,
 )
+from stock_alert.core.models import CacheConfig
 
 
 def _get_provider(name: str) -> DataProvider:
@@ -65,6 +67,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        config = load_config()
+        cache_config = CacheConfig.from_dict(config.get("cache", {}))
+        
         provider = _get_provider(args.provider)
         alerts = alerts_from_dict(load_alerts())
         watchlist_symbols = set(load_watchlist())
@@ -91,13 +96,12 @@ def main(argv: Optional[List[str]] = None) -> int:
             LOG(
                 f"[ALERT] {name} ({alert.symbol}) -> {reason}. Price=${q.price}, % day={q.pct_day}, vol={q.volume}"
             )
-            # Persist the updated alert's last_trigger_ts
-            save_alerts(alerts_to_dict(alerts))
 
         run_loop(
             provider=provider,
             symbols=symbols,
             alerts=alerts,
+            cache_config=cache_config,
             interval_str=args.interval,
             iterations=args.iterations,
             on_alert=on_alert,

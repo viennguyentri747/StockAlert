@@ -55,7 +55,7 @@ def cmd_alert_create(args: argparse.Namespace):
             kind=kind,
             op=op,
             value=value,
-            cooldown_sec=args.cooldown,
+            alert_cooldown_secs=args.cooldown,
         )
         alerts[alert.name] = alert
         save_alerts(alerts_to_dict(alerts))
@@ -80,7 +80,7 @@ def cmd_alerts_list(_args: argparse.Namespace):
             if a.last_trigger_ts
             else "never"
         )
-        LOG(f"- {name}: {a.symbol} | {a.kind.value} {a.op.value} {a.value} | cooldown {a.cooldown_sec}s | last {last}")
+        LOG(f"- {name}: {a.symbol} | {a.kind.value} {a.op.value} {a.value} | cooldown {a.alert_cooldown_secs}s | last {last}")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

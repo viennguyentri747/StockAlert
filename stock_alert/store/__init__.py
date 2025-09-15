@@ -5,6 +5,7 @@ from .files import (
     save_alerts,
     alerts_from_dict,
     alerts_to_dict,
+    load_config,
 )
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "save_alerts",
     "alerts_from_dict",
     "alerts_to_dict",
+    "load_config",
 ]
 

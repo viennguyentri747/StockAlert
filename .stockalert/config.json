@@ -1,0 +1,62 @@
+{
+  "alerts": {
+    "google200":{
+      "alert_cooldown_secs": 5,
+      "kind": "price",
+      "name": "google200",
+      "op": ">=",
+      "symbol": "GOOGL",
+      "value": 240.0
+    },
+    "aapl-200": {
+      "alert_cooldown_secs": 5,
+      "kind": "price",
+      "name": "aapl-200",
+      "op": ">=",
+      "symbol": "AAPL",
+      "value": 200.0
+    },
+    "aapl-vol": {
+      "alert_cooldown_secs": 300,
+      "kind": "volume",
+      "name": "aapl-vol",
+      "op": ">=",
+      "symbol": "AAPL",
+      "value": 1000000.0
+    },
+    "enum-vol": {
+      "alert_cooldown_secs": 300,
+      "kind": "volume",
+      "name": "enum-vol",
+      "op": ">=",
+      "symbol": "AAPL",
+      "value": 1000000.0
+    },
+    "msft-300": {
+      "alert_cooldown_secs": 5,
+      "kind": "price",
+      "name": "msft-300",
+      "op": ">=",
+      "symbol": "MSFT",
+      "value": 300.0
+    },
+    "tsla-drop": {
+      "alert_cooldown_secs": 300,
+      "kind": "pct_day",
+      "name": "tsla-drop",
+      "op": "<=",
+      "symbol": "TSLA",
+      "value": -3.0
+    }
+  },
+  "watchlist": [
+    "AAPL",
+    "MSFT",
+    "TSLA"
+  ],
+  "cache": {
+    "directory": ".stockalert/cache",
+    "max_files": 5,
+    "max_file_size": 10240
+  }
+}

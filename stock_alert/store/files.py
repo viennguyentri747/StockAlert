@@ -1,12 +1,11 @@
 import json
 import os
 from dataclasses import asdict
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from ..common.constants import (
-    ALERTS_FILE,
+    CONFIG_FILE,
     DEFAULT_APP_DIR_PATH,
-    WATCHLIST_FILE,
 )
 from ..core import Alert
 
@@ -34,25 +33,37 @@ def _save_json(path: str, data):
     os.replace(tmp, path)
 
 
-def load_watchlist() -> List[str]:
+def load_config() -> Dict[str, Any]:
     ensure_app_dir()
-    data = _load_json(_path(WATCHLIST_FILE), [])
+    return _load_json(_path(CONFIG_FILE), {"alerts": {}, "watchlist": []})
+
+
+def save_config(config: Dict[str, Any]):
+    ensure_app_dir()
+    _save_json(_path(CONFIG_FILE), config)
+
+
+def load_watchlist() -> List[str]:
+    config = load_config()
+    data = config.get("watchlist", [])
     return [s.upper() for s in data] if isinstance(data, list) else []
 
 
 def save_watchlist(symbols: List[str]):
-    ensure_app_dir()
-    _save_json(_path(WATCHLIST_FILE), sorted(set(s.upper() for s in symbols)))
+    config = load_config()
+    config["watchlist"] = sorted(set(s.upper() for s in symbols))
+    save_config(config)
 
 
 def load_alerts() -> Dict[str, Dict]:
-    ensure_app_dir()
-    return _load_json(_path(ALERTS_FILE), {})
+    config = load_config()
+    return config.get("alerts", {})
 
 
 def save_alerts(alerts: Dict[str, Dict]):
-    ensure_app_dir()
-    _save_json(_path(ALERTS_FILE), alerts)
+    config = load_config()
+    config["alerts"] = alerts
+    save_config(config)
 
 
 def alerts_from_dict(d: Dict[str, Dict]) -> Dict[str, Alert]:

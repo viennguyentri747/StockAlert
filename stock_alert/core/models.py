@@ -6,6 +6,21 @@ from ..common.constants import *
 
 
 @dataclass
+class CacheConfig:
+    directory: str
+    max_files: int
+    max_file_size: int
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "CacheConfig":
+        return cls(
+            directory=d["directory"],
+            max_files=d["max_files"],
+            max_file_size=d["max_file_size"],
+        )
+
+
+@dataclass
 class Quote:
     symbol: str
     price: float
@@ -20,8 +35,7 @@ class Alert:
     kind: AlertKind
     op: Operation
     value: float
-    cooldown_sec: int = 300
-    last_trigger_ts: Optional[float] = None
+    alert_cooldown_secs: int = 300
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Alert":
@@ -31,8 +45,7 @@ class Alert:
             kind=AlertKind(d[ALERT_FIELD_KIND]),
             op=Operation(d[ALERT_FIELD_OP]),
             value=d[ALERT_FIELD_VALUE],
-            cooldown_sec=d[ALERT_FIELD_ALERT_COOLDOWN],
-            last_trigger_ts=d[ALERT_FIELD_LAST_TRIGGER_TS],
+            alert_cooldown_secs=d[ALERT_FIELD_ALERT_COOLDOWN],
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -41,7 +54,7 @@ class Alert:
         d["op"] = self.op.value
         return d
 
-    def should_trigger(self, q: Quote, now_ts: float) -> Tuple[bool, str]:
+    def should_trigger(self, q: Quote, now_ts: float, last_trigger_ts: Optional[float] = None) -> Tuple[bool, str]:
         if self.kind == AlertKind.PRICE:
             lhs = q.price
         elif self.kind == AlertKind.PCT_DAY:
@@ -58,8 +71,8 @@ class Alert:
         else:
             return False, f"Unsupported operator: {self.op}"
 
-        if cond and self.last_trigger_ts is not None:
-            if now_ts - self.last_trigger_ts < self.cooldown_sec:
+        if cond and last_trigger_ts is not None:
+            if now_ts - last_trigger_ts < self.alert_cooldown_secs:
                 return False, "Cooldown active"
 
         if cond:

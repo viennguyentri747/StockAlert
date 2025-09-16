@@ -2,6 +2,9 @@ import argparse
 import sys
 import time
 from typing import List, Optional
+from datetime import datetime
+import json
+from pathlib import Path
 
 from stock_alert.common.constants import DEFAULT_COOLDOWN_SEC
 from stock_alert.common.utils import LOG
@@ -13,7 +16,9 @@ from stock_alert.store import (
     load_watchlist,
     save_alerts,
     save_watchlist,
+    load_config,
 )
+from stock_alert.core.models import CacheConfig
 
 
 def cmd_watchlist_add(args: argparse.Namespace):
@@ -73,13 +78,26 @@ def cmd_alerts_list(_args: argparse.Namespace):
     if not alerts:
         LOG("No alerts defined.")
         return
+    
+    # Load cache data to get last trigger timestamps
+    config = load_config()
+    cache_config = CacheConfig.from_dict(config.get("cache", {}))
+    cache_dir = Path(cache_config.directory)
+    cache_file = cache_dir / "cache_data.json"
+    
+    cache_data = {}
+    if cache_file.exists():
+        try:
+            with open(cache_file, "r") as f:
+                cache_data = json.load(f)
+        except Exception:
+            pass
+    
+    last_trigger_ts = cache_data.get("last_alert_trigger_ts", {})
+    
     LOG("Alerts:")
     for name, a in sorted(alerts.items()):
-        last = (
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.last_trigger_ts))
-            if a.last_trigger_ts
-            else "never"
-        )
+        last = last_trigger_ts.get(name, "never")
         LOG(f"- {name}: {a.symbol} | {a.kind.value} {a.op.value} {a.value} | cooldown {a.alert_cooldown_secs}s | last {last}")
 
 
@@ -107,7 +125,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_a_create.add_argument(
         "--when",
         required=True,
-        help="Condition string, e.g., 'price >= 200', 'pct_day <= -3'",
+        help="Condition string, e.g., 'price_value >= 200', 'pct_day <= -3', 'volume >= 1000000', 'last_alert_price_offset_percent >= 5', 'last_alert_price_value >= 150'",
     )
     p_a_create.add_argument("--name", required=True, help="A unique name for the alert")
     p_a_create.add_argument(

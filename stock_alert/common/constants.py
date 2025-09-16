@@ -10,7 +10,7 @@ LINE_SEPARATOR_NO_ENDLINE = f"{'=' * 60}"
 CONFIG_FILE = "config.json"
 CACHE_FILE = "cache_data.json"
 
-DEFAULT_INTERVAL = "5s"
+DEFAULT_INTERVAL = "15s"
 DEFAULT_COOLDOWN_SEC = 300
 
 REPO_PATH = Path.home() / "stock_alert/"
@@ -21,9 +21,11 @@ CREDENTIALS_FILE_PATH = f"{REPO_PATH}/.my_credentials.env"
 
 
 class AlertKind(str, Enum):
-    PRICE = "price"
+    PRICE_VALUE = "price_value"
     PCT_DAY = "pct_day"
     VOLUME = "volume"
+    LAST_ALERT_PRICE_OFFSET_VALUE = "price_since_last_alert"
+    LAST_ALERT_PRICE_OFFSET_PERCENT = "last_alert_price_offset_percent"
 
 
 class Operation(str, Enum):
@@ -38,10 +40,17 @@ ALERT_FIELD_KIND = "kind"
 ALERT_FIELD_VALUE = "value"
 ALERT_FIELD_OP = "op"
 ALERT_FIELD_ALERT_COOLDOWN = "alert_cooldown_secs"
+ALERT_FIELD_ALERTS = "alerts"
+ALERT_FIELD_WATCHLIST = "watchlist"
 CACHE_FIELD_LAST_ALERT_TRIGGER_TS = "last_alert_trigger_ts"
+CACHE_FIELD_ALERTS_HISTORY = "alerts"
 
 CACHE_FIELD_MAX_SIZE_BYTES = "max_size_bytes"
 CACHE_FIELD_NUM_ROTATED_FILES = "num_rotated_files"
+ 
+CONFIG_FIELD_DIRECTORY = "directory"
+CONFIG_FIELD_MAX_FILES = "max_files"
+CONFIG_FIELD_MAX_FILE_SIZE = "max_file_size"
 
 # Credential key names
 ALPHAVANTAGE_API_KEY = "ALPHAVANTAGE_API_TOKEN"

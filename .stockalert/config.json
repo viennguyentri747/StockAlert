@@ -1,58 +1,70 @@
 {
   "alerts": {
-    "google200":{
+    "google252":{
       "alert_cooldown_secs": 5,
-      "kind": "price",
-      "name": "google200",
+      "kind": "price_value",
+      "name": "google252",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 240.0
+      "value": 252.0
     },
-    "aapl-200": {
-      "alert_cooldown_secs": 5,
-      "kind": "price",
-      "name": "aapl-200",
-      "op": ">=",
-      "symbol": "AAPL",
-      "value": 200.0
-    },
-    "aapl-vol": {
+    "gld-price": {
       "alert_cooldown_secs": 300,
-      "kind": "volume",
-      "name": "aapl-vol",
+      "kind": "price_value",
+      "name": "gld-price",
       "op": ">=",
-      "symbol": "AAPL",
-      "value": 1000000.0
+      "symbol": "GLD",
+      "value": 9999
     },
-    "enum-vol": {
+    "goog-price": {
       "alert_cooldown_secs": 300,
-      "kind": "volume",
-      "name": "enum-vol",
+      "kind": "price_value",
+      "name": "goog-price",
       "op": ">=",
-      "symbol": "AAPL",
-      "value": 1000000.0
+      "symbol": "GOOGL",
+      "value": 9999
     },
-    "msft-300": {
-      "alert_cooldown_secs": 5,
-      "kind": "price",
-      "name": "msft-300",
-      "op": ">=",
-      "symbol": "MSFT",
-      "value": 300.0
-    },
-    "tsla-drop": {
+    "lulu-price": {
       "alert_cooldown_secs": 300,
-      "kind": "pct_day",
-      "name": "tsla-drop",
-      "op": "<=",
-      "symbol": "TSLA",
-      "value": -3.0
+      "kind": "price_value",
+      "name": "lulu-price",
+      "op": ">=",
+      "symbol": "LULU",
+      "value": 9999
+    },
+    "pypl-price": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_value",
+      "name": "pypl-price",
+      "op": ">=",
+      "symbol": "PYPL",
+      "value": 9999
+    },
+    "qqqm-price": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_value",
+      "name": "qqqm-price",
+      "op": ">=",
+      "symbol": "QQQM",
+      "value": 9999
+    },
+    "ttd-price": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_value",
+      "name": "ttd-price",
+      "op": ">=",
+      "symbol": "TTD",
+      "value": 9999
     }
   },
   "watchlist": [
-    "AAPL",
-    "MSFT",
-    "TSLA"
+    "BTC",
+    "GLD",
+    "GOOG",
+    "LULU",
+    "NVDA",
+    "PYPL",
+    "TTD"
   ],
   "cache": {
     "directory": ".stockalert/cache",

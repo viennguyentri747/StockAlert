@@ -37,7 +37,7 @@ class AlphaVantageProvider(DataProvider):
         quote = data.get("Global Quote") or data.get("GlobalQuote") or {}
         if not quote:
             raise ValueError(f"No quote data for symbol: {sym}")
-        price = float(quote.get("05. price") or quote.get("price") or 0.0)
+        price = float(quote.get("05. price") or quote.get("price_value") or 0.0)
         # change percent like '0.56%'
         pct_raw = quote.get("10. change percent") or quote.get("changePercent") or "0%"
         try:

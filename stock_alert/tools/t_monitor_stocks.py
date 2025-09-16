@@ -1,11 +1,12 @@
 import argparse
+import subprocess
 import sys
 import time
 import traceback
 from typing import List, Optional
 
 from stock_alert.common.constants import DEFAULT_INTERVAL
-from stock_alert.common.utils import LOG
+from stock_alert.common.utils import LOG, show_noti
 from stock_alert.data_providers import (
     AlphaVantageProvider,
     DataProvider,
@@ -81,7 +82,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             return 0
 
         LOG(
-            f"Starting monitor for {len(symbols)} symbol(s) using '{args.provider}' provider..."
+            f"Starting monitor for {len(symbols)} symbol(s) using '{args.provider}' provider... Symbols: {', '.join(symbols)}"
         )
         LOG(f"Interval: {args.interval}, Iterations: {args.iterations or '∞'}")
 
@@ -96,6 +97,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             LOG(
                 f"[ALERT] {name} ({alert.symbol}) -> {reason}. Price=${q.price}, % day={q.pct_day}, vol={q.volume}"
             )
+            show_noti(title=name, message=f"{alert.symbol}")
 
         run_loop(
             provider=provider,

@@ -28,9 +28,9 @@ The tool is split into a main launcher (`stock-alert`) and sub-tools (`manage`, 
 
 - Run the monitoring loop: `stock-alert monitor --interval 5s --verbose`
 - Use real data providers (some require API keys set in `.my_credential.env`):
+  - Finnhub: `stock-alert monitor --provider finnhub`
   - Yahoo (no key): `stock-alert monitor --provider yahoo`
   - Alpha Vantage: `stock-alert monitor --provider alphavantage`
-  - Finnhub: `stock-alert monitor --provider finnhub`
 
 Notes
 -----

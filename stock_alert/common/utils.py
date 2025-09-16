@@ -7,6 +7,7 @@ import sys
 from typing import List, Literal, Optional, Union
 from datetime import datetime
 import traceback
+import shlex
 
 
 def seconds_from_interval(s: str) -> int:
@@ -114,3 +115,12 @@ def read_value_from_credential_file(credentials_file_path: str, key_to_read: str
     else:
         LOG(f"Credentials file {credentials_file_path} not found.")
     return None
+
+
+def show_noti(title="Notification", message="Noti!", duration=5):
+    run_shell(
+        cmd=f"~/local_tools/dev_common/noti_utils.py --title {shell_escape(title)} --message {shell_escape(message)} --duration {duration}", check_throw_exception_on_exit_code=False)
+
+
+def shell_escape(str_to_escape: str):
+    return shlex.quote(str_to_escape)

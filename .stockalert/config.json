@@ -1,12 +1,36 @@
 {
   "alerts": {
-    "google252":{
+    "google252": {
       "alert_cooldown_secs": 5,
       "kind": "price_value",
       "name": "google252",
       "op": ">=",
       "symbol": "GOOGL",
       "value": 252.0
+    },
+    "goog-value-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_since_last_alert",
+      "name": "goog-value-up-trailing",
+      "op": ">=",
+      "symbol": "GOOG",
+      "value": 1
+    },
+    "goog-percent-down-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "goog-percent-down-trailing",
+      "op": "<=",
+      "symbol": "GOOG",
+      "value": -1
+    },
+    "goog-percent-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "goog-percent-up-trailing",
+      "op": ">=",
+      "symbol": "GOOG",
+      "value": -1
     },
     "gld-price": {
       "alert_cooldown_secs": 300,
@@ -16,38 +40,6 @@
       "symbol": "GLD",
       "value": 9999
     },
-    "goog-price": {
-      "alert_cooldown_secs": 300,
-      "kind": "price_value",
-      "name": "goog-price",
-      "op": ">=",
-      "symbol": "GOOGL",
-      "value": 9999
-    },
-    "lulu-price": {
-      "alert_cooldown_secs": 300,
-      "kind": "price_value",
-      "name": "lulu-price",
-      "op": ">=",
-      "symbol": "LULU",
-      "value": 9999
-    },
-    "pypl-price": {
-      "alert_cooldown_secs": 300,
-      "kind": "price_value",
-      "name": "pypl-price",
-      "op": ">=",
-      "symbol": "PYPL",
-      "value": 9999
-    },
-    "qqqm-price": {
-      "alert_cooldown_secs": 300,
-      "kind": "price_value",
-      "name": "qqqm-price",
-      "op": ">=",
-      "symbol": "QQQM",
-      "value": 9999
-    },
     "ttd-price": {
       "alert_cooldown_secs": 300,
       "kind": "price_value",
@@ -55,6 +47,70 @@
       "op": ">=",
       "symbol": "TTD",
       "value": 9999
+    },
+    "gld-value-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_since_last_alert",
+      "name": "gld-value-up-trailing",
+      "op": ">=",
+      "symbol": "GLD",
+      "value": 1
+    },
+    "gld-percent-down-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "gld-percent-down-trailing",
+      "op": "<=",
+      "symbol": "GLD",
+      "value": -1
+    },
+    "lulu-value-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_since_last_alert",
+      "name": "lulu-value-up-trailing",
+      "op": ">=",
+      "symbol": "LULU",
+      "value": 1
+    },
+    "lulu-percent-down-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "lulu-percent-down-trailing",
+      "op": "<=",
+      "symbol": "LULU",
+      "value": -1
+    },
+    "pypl-value-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_since_last_alert",
+      "name": "pypl-value-up-trailing",
+      "op": ">=",
+      "symbol": "PYPL",
+      "value": 1
+    },
+    "pypl-percent-down-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "pypl-percent-down-trailing",
+      "op": "<=",
+      "symbol": "PYPL",
+      "value": -1
+    },
+    "ttd-value-up-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "price_since_last_alert",
+      "name": "ttd-value-up-trailing",
+      "op": ">=",
+      "symbol": "TTD",
+      "value": 1
+    },
+    "ttd-percent-down-trailing": {
+      "alert_cooldown_secs": 300,
+      "kind": "last_alert_price_offset_percent",
+      "name": "ttd-percent-down-trailing",
+      "op": "<=",
+      "symbol": "TTD",
+      "value": -1
     }
   },
   "watchlist": [

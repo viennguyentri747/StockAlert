@@ -1,0 +1,20 @@
+{
+  "alerts": {
+    "google255": {
+      "alert_min_cooldown_secs": 10,
+      "kind": "price_value",
+      "op": ">=",
+      "symbol": "GOOG",
+      "value": 230.0
+    }
+  },
+  "watchlist": [
+    "GOOG"
+  ],
+  "cache": {
+    "file_name": "my_cache.json",
+    "rel_dir_path_vs_storage": "cache",
+    "max_files": 5,
+    "max_file_size": 10240
+  }
+}

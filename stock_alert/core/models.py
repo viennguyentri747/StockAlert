@@ -4,21 +4,26 @@ from dataclasses import dataclass, asdict
 from typing import Optional, Tuple, Dict, Any
 from datetime import datetime
 
+from stock_alert.common.utils import LOG
+
 from ..common.constants import *
 
 
 @dataclass
 class CacheConfig:
+    file_name: str
     directory: str
     max_files: int
     max_file_size: int
 
+
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "CacheConfig":
         return cls(
-            directory=d[CONFIG_FIELD_DIRECTORY],
-            max_files=d[CONFIG_FIELD_MAX_FILES],
-            max_file_size=d[CONFIG_FIELD_MAX_FILE_SIZE],
+            file_name=d[CACHE_FIELD_FILE_NAME],
+            directory=f"{DEFAULT_STORAGE_DIR_PATH}/{d[CACHE_FIELD_DIR_REL_PATH_VS_STORAGE]}",
+            max_files=d[CACHE_FIELD_MAX_FILES],
+            max_file_size=d[CACHE_FIELD_MAX_FILE_SIZE],
         )
 
 
@@ -39,10 +44,20 @@ class Alert:
     value: float
     alert_cooldown_secs: int = 300
 
+    def __init__(self, symbol: str, kind: AlertKind, op: Operation, 
+                 value: float, alert_cooldown_secs: int = 300):
+        """Initialize Alert with validation or custom logic."""
+        self.symbol = symbol
+        self.kind = kind
+        self.op = op
+        self.value = value
+        self.alert_cooldown_secs = alert_cooldown_secs
+        self.name = f"{self.symbol}-{self.kind.value}-{self.op.value}-{self.value}"
+
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Alert":
+        # Now calls the __init__ method through the constructor
         return cls(
-            name=d[ALERT_FIELD_NAME],
             symbol=d[ALERT_FIELD_SYMBOL],
             kind=AlertKind(d[ALERT_FIELD_KIND]),
             op=Operation(d[ALERT_FIELD_OP]),
@@ -108,6 +123,7 @@ class Alert:
                 last_trigger_unix = last_trigger_ts
             
             if now_ts - last_trigger_unix < self.alert_cooldown_secs:
+                LOG("Alert cooldown active")
                 return False, "Cooldown active"
 
         if cond:

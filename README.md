@@ -21,7 +21,7 @@ The tool is split into a main launcher (`stock-alert`) and sub-tools (`manage`, 
 
 - Add symbols to watchlist: `stock-alert manage watchlist add AAPL MSFT TSLA`
 - List watchlist: `stock-alert manage watchlist list`
-- Create an alert: `stock-alert manage alert create --symbol AAPL --when "price >= 200" --name aapl-200`
+- Create an alert: `stock-alert manage alert create --symbol AAPL --when "price >= 200"`
 - List alerts: `stock-alert manage alerts`
 
 ### Monitor Stocks (`stock-alert monitor`)

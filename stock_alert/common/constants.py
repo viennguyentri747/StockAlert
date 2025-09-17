@@ -7,23 +7,20 @@ LINE_SEPARATOR_NO_ENDLINE = f"{'=' * 60}"
 
 
 # Data filenames
-CONFIG_FILE = "config.json"
-CACHE_FILE = "cache_data.json"
+CONFIG_FILE_REL_PATH_VS_SRORAGE = "configs/current_config.json"
 
-DEFAULT_INTERVAL = "15s"
+DEFAULT_MONITOR_INTERVAL = "15s"
 DEFAULT_COOLDOWN_SEC = 300
 
 REPO_PATH = Path.home() / "stock_alert/"
-DEFAULT_APP_DIR_PATH = f"{REPO_PATH}/.stockalert"
+DEFAULT_STORAGE_DIR_PATH = f"{REPO_PATH}/.stockalert"
 CREDENTIALS_FILE_PATH = f"{REPO_PATH}/.my_credentials.env"
-
-# Alert settings
 
 
 class AlertKind(str, Enum):
     PRICE_VALUE = "price_value"
-    PCT_DAY = "pct_day"
     VOLUME = "volume"
+    PCT_DAY = "price_percent_day"
     LAST_ALERT_PRICE_OFFSET_VALUE = "price_since_last_alert"
     LAST_ALERT_PRICE_OFFSET_PERCENT = "last_alert_price_offset_percent"
 
@@ -33,24 +30,29 @@ class Operation(str, Enum):
     LE = "<="
 
 
+ALERT_LOG_TAG = "[ALERT]"
+
 # JSON field keys (avoid magic strings)
-ALERT_FIELD_NAME = "name"
 ALERT_FIELD_SYMBOL = "symbol"
 ALERT_FIELD_KIND = "kind"
 ALERT_FIELD_VALUE = "value"
 ALERT_FIELD_OP = "op"
-ALERT_FIELD_ALERT_COOLDOWN = "alert_cooldown_secs"
+ALERT_FIELD_ALERT_COOLDOWN = "alert_min_cooldown_secs"
 ALERT_FIELD_ALERTS = "alerts"
 ALERT_FIELD_WATCHLIST = "watchlist"
 CACHE_FIELD_LAST_ALERT_TRIGGER_TS = "last_alert_trigger_ts"
 CACHE_FIELD_ALERTS_HISTORY = "alerts"
 
+ALERT_RECORD_FIELD_TRIGGER_TS = "trigger_ts"
+ALERT_RECORD_FIELD_NAME = "alert_name"
+
 CACHE_FIELD_MAX_SIZE_BYTES = "max_size_bytes"
 CACHE_FIELD_NUM_ROTATED_FILES = "num_rotated_files"
- 
-CONFIG_FIELD_DIRECTORY = "directory"
-CONFIG_FIELD_MAX_FILES = "max_files"
-CONFIG_FIELD_MAX_FILE_SIZE = "max_file_size"
+
+CACHE_FIELD_DIR_REL_PATH_VS_STORAGE = "rel_dir_path_vs_storage"
+CACHE_FIELD_MAX_FILES = "max_files"
+CACHE_FIELD_MAX_FILE_SIZE = "max_file_size"
+CACHE_FIELD_FILE_NAME = "file_name"
 
 # Credential key names
 ALPHAVANTAGE_API_KEY = "ALPHAVANTAGE_API_TOKEN"

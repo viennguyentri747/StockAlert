@@ -30,9 +30,10 @@ def seconds_from_interval(s: str) -> int:
     return int(float(s))
 
 
-def run_shell(cmd: Union[str, List[str]], cwd: Optional[Path] = None, check_throw_exception_on_exit_code: bool = True, stdout=None, stderr=None, text=None, capture_output: bool = False, encoding: str = 'utf-8') -> subprocess.CompletedProcess:
+def run_shell(cmd: Union[str, List[str]], cwd: Optional[Path] = None, check_throw_exception_on_exit_code: bool = True, stdout=None, stderr=None, text=None, capture_output: bool = False, encoding: str = 'utf-8', verbose: bool = True) -> subprocess.CompletedProcess:
     """Echo + run a shell command"""
-    LOG(f">>> {cmd} (cwd={cwd or Path.cwd()})")
+    if verbose:
+        LOG(f">>> {cmd} (cwd={cwd or Path.cwd()})")
     is_shell = isinstance(cmd, str)
     return subprocess.run(cmd, shell=is_shell, cwd=cwd, check=check_throw_exception_on_exit_code, stdout=stdout, stderr=stderr, text=text, capture_output=capture_output, encoding=encoding)
 
@@ -119,7 +120,7 @@ def read_value_from_credential_file(credentials_file_path: str, key_to_read: str
 
 def show_noti(title="Notification", message="Noti!", duration=5):
     run_shell(
-        cmd=f"~/local_tools/dev_common/noti_utils.py --title {shell_escape(title)} --message {shell_escape(message)} --duration {duration}", check_throw_exception_on_exit_code=False)
+        cmd=f"~/local_tools/dev_common/noti_utils.py --title {shell_escape(title)} --message {shell_escape(message)} --duration {duration}", check_throw_exception_on_exit_code=False, verbose= False)
 
 
 def shell_escape(str_to_escape: str):

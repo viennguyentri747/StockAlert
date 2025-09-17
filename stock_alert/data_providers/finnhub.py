@@ -12,7 +12,6 @@ from ..common.constants import CREDENTIALS_FILE_PATH, FINNHUB_API_KEY
 
 class FinnhubProvider(DataProvider):
     """Finnhub quote API.
-    Credential key: FINNHUB_API_KEY in .my_credential.env
     Endpoint: https://finnhub.io/api/v1/quote?symbol=SYM&token=KEY
     Free tier: yes (rate limited).
     """

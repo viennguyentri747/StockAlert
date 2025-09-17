@@ -6,18 +6,10 @@ from datetime import datetime
 import json
 from pathlib import Path
 
-from stock_alert.common.constants import DEFAULT_COOLDOWN_SEC
+from stock_alert.common.constants import *
 from stock_alert.common.utils import LOG
 from stock_alert.core import Alert, parse_condition
-from stock_alert.store import (
-    alerts_from_dict,
-    alerts_to_dict,
-    load_alerts,
-    load_watchlist,
-    save_alerts,
-    save_watchlist,
-    load_config,
-)
+from stock_alert.store import *
 from stock_alert.core.models import CacheConfig
 
 
@@ -54,19 +46,10 @@ def cmd_alert_create(args: argparse.Namespace):
 
     try:
         kind, op, value = parse_condition(args.when)
-        alert = Alert(
-            name=args.name,
-            symbol=args.symbol.upper(),
-            kind=kind,
-            op=op,
-            value=value,
-            alert_cooldown_secs=args.cooldown,
-        )
+        alert = Alert(symbol=args.symbol.upper(), kind=kind, op=op, value=value, alert_cooldown_secs=args.cooldown, )
         alerts[alert.name] = alert
         save_alerts(alerts_to_dict(alerts))
-        LOG(
-            f"Created alert '{alert.name}' for {alert.symbol}: {kind.value} {op.value} {value}"
-        )
+        LOG(f"Created alert '{alert.name}' for {alert.symbol}: {kind.value} {op.value} {value}")
     except ValueError as e:
         LOG(f"Error: Invalid condition. {e}", file=sys.stderr)
         sys.exit(1)
@@ -78,13 +61,12 @@ def cmd_alerts_list(_args: argparse.Namespace):
     if not alerts:
         LOG("No alerts defined.")
         return
-    
+
     # Load cache data to get last trigger timestamps
     config = load_config()
     cache_config = CacheConfig.from_dict(config.get("cache", {}))
-    cache_dir = Path(cache_config.directory)
-    cache_file = cache_dir / "cache_data.json"
-    
+    cache_file = Path(cache_config.directory) / cache_config.file_name
+
     cache_data = {}
     if cache_file.exists():
         try:
@@ -92,9 +74,9 @@ def cmd_alerts_list(_args: argparse.Namespace):
                 cache_data = json.load(f)
         except Exception:
             pass
-    
+
     last_trigger_ts = cache_data.get("last_alert_trigger_ts", {})
-    
+
     LOG("Alerts:")
     for name, a in sorted(alerts.items()):
         last = last_trigger_ts.get(name, "never")
@@ -123,17 +105,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_a_create = sub_a.add_parser("create", help="Create a new alert")
     p_a_create.add_argument("--symbol", required=True, help="Stock symbol for the alert")
     p_a_create.add_argument(
-        "--when",
-        required=True,
-        help="Condition string, e.g., 'price_value >= 200', 'pct_day <= -3', 'volume >= 1000000', 'last_alert_price_offset_percent >= 5', 'last_alert_price_value >= 150'",
-    )
+        "--when", required=True, help="Condition string, e.g., 'price_value >= 200', 'pct_day <= -3', 'volume >= 1000000', 'last_alert_price_offset_percent >= 5', 'last_alert_price_value >= 150'", )
     p_a_create.add_argument("--name", required=True, help="A unique name for the alert")
-    p_a_create.add_argument(
-        "--cooldown",
-        type=int,
-        default=DEFAULT_COOLDOWN_SEC,
-        help=f"Trigger cooldown in seconds (default: {DEFAULT_COOLDOWN_SEC})",
-    )
+    p_a_create.add_argument("--cooldown", type=int, default=DEFAULT_COOLDOWN_SEC,
+                            help=f"Trigger cooldown in seconds (default: {DEFAULT_COOLDOWN_SEC})", )
     p_a_create.set_defaults(func=cmd_alert_create)
 
     # Top-level 'alerts' to list all

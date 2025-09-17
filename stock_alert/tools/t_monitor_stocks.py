@@ -5,25 +5,12 @@ import time
 import traceback
 from typing import List, Optional
 
-from stock_alert.common.constants import DEFAULT_INTERVAL
+from stock_alert.common.constants import *
 from stock_alert.common.utils import LOG, show_noti
-from stock_alert.data_providers import (
-    AlphaVantageProvider,
-    DataProvider,
-    FakeDataProvider,
-    FinnhubProvider,
-    YahooFinanceProvider,
-)
+from stock_alert.data_providers import *
 from stock_alert.engine import run_loop
-from stock_alert.store import (
-    alerts_from_dict,
-    alerts_to_dict,
-    load_alerts,
-    load_watchlist,
-    save_alerts,
-    load_config,
-)
-from stock_alert.core.models import CacheConfig
+from stock_alert.store import *
+from stock_alert.core.models import Alert, CacheConfig
 
 
 def _get_provider(name: str) -> DataProvider:
@@ -42,35 +29,24 @@ def _get_provider(name: str) -> DataProvider:
 
 def main(argv: Optional[List[str]] = None) -> int:
     """Main function for the stock monitoring tool."""
-    parser = argparse.ArgumentParser(
-        prog="stock-alert monitor", description="Run the stock monitoring and alert engine."
-    )
-    parser.add_argument(
-        "--interval",
-        default=DEFAULT_INTERVAL,
-        help=f"Polling interval, e.g., '30s', '1m' (default: {DEFAULT_INTERVAL})",
-    )
-    parser.add_argument(
-        "--iterations",
-        type=int,
-        default=None,
-        help="Stop after N iterations (default: runs forever)",
-    )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Print quotes on every check"
-    )
-    parser.add_argument(
-        "--provider",
-        default="fake",
-        choices=["fake", "yahoo", "alphavantage", "finnhub"],
-        help="Data provider to use (default: fake)",
-    )
+    parser = argparse.ArgumentParser(prog="stock-alert monitor",
+                                     description="Run the stock monitoring and alert engine.")
+    parser.add_argument("--interval", default=DEFAULT_MONITOR_INTERVAL,
+                        help=f"Polling interval, e.g., '30s', '1m' (default: {DEFAULT_MONITOR_INTERVAL})", )
+    parser.add_argument("--iterations", type=int, default=None,
+                        help="Stop after N iterations (default: runs forever)", )
+    parser.add_argument("--verbose", action="store_true", help="Print quotes on every check")
+    parser.add_argument("--provider", default="fake",
+                        choices=["fake", "yahoo", "alphavantage", "finnhub"], help="Data provider to use (default: fake)", )
     args = parser.parse_args(argv)
 
     try:
         config = load_config()
-        cache_config = CacheConfig.from_dict(config.get("cache", {}))
         
+        cache_config = CacheConfig.from_dict(config.get("cache", {}))
+        cache_dir = Path(cache_config.directory)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
         provider = _get_provider(args.provider)
         alerts = alerts_from_dict(load_alerts())
         watchlist_symbols = set(load_watchlist())
@@ -81,34 +57,21 @@ def main(argv: Optional[List[str]] = None) -> int:
             LOG("Nothing to monitor. Add symbols via 'stock-alert manage watchlist add'.")
             return 0
 
-        LOG(
-            f"Starting monitor for {len(symbols)} symbol(s) using '{args.provider}' provider... Symbols: {', '.join(symbols)}"
-        )
+        LOG(f"Starting monitor for {len(symbols)} symbol(s) using '{args.provider}' provider... Symbols: {', '.join(symbols)}")
         LOG(f"Interval: {args.interval}, Iterations: {args.iterations or '∞'}")
 
         def on_tick(quotes):
             if args.verbose:
                 for sym, q in quotes.items():
-                    LOG(
-                        f"{sym:<6}: price=${q.price:<8.2f} | % day={q.pct_day:<6.2f} | vol={q.volume}"
-                    )
+                    LOG(f"{sym:<6}: price=${q.price:<8.2f} | % day={q.pct_day:<6.2f} | vol={q.volume}")
 
-        def on_alert(name, alert, q, reason):
-            LOG(
-                f"[ALERT] {name} ({alert.symbol}) -> {reason}. Price=${q.price}, % day={q.pct_day}, vol={q.volume}"
-            )
-            show_noti(title=name, message=f"{alert.symbol}")
+        def on_alert(alert_key, alert: Alert, q, reason):
+            LOG(f"{ALERT_LOG_TAG} {alert_key}. Current price=${q.price}, % day={q.pct_day}, vol={q.volume}")
+            show_noti(title=alert.name, message=f"{reason}")
 
-        run_loop(
-            provider=provider,
-            symbols=symbols,
-            alerts=alerts,
-            cache_config=cache_config,
-            interval_str=args.interval,
-            iterations=args.iterations,
-            on_alert=on_alert,
-            on_tick=on_tick,
-        )
+        # Run the monitoring loop   
+        run_loop(provider=provider, symbols=symbols, alerts=alerts, cache_config=cache_config,
+                 interval_str=args.interval, iterations=args.iterations, on_alert=on_alert, on_tick=on_tick, )
         LOG("Monitoring finished.")
         return 0
     except KeyboardInterrupt:

@@ -7,12 +7,12 @@ from ..common.constants import *
 from ..core import Alert
 
 
-def ensure_app_dir():
-    os.makedirs(DEFAULT_APP_DIR_PATH, exist_ok=True)
+def ensure_storage_dir():
+    os.makedirs(DEFAULT_STORAGE_DIR_PATH, exist_ok=True)
 
 
-def _path(name: str) -> str:
-    return os.path.join(DEFAULT_APP_DIR_PATH, name)
+def _storage_path(path: str) -> str:
+    return os.path.join(DEFAULT_STORAGE_DIR_PATH, path)
 
 
 def _load_json(path: str, default):
@@ -31,15 +31,15 @@ def _save_json(path: str, data):
 
 
 def load_config() -> Dict[str, Any]:
-    ensure_app_dir()
+    ensure_storage_dir()
     return _load_json(
-        _path(CONFIG_FILE), {ALERT_FIELD_ALERTS: {}, ALERT_FIELD_WATCHLIST: []}
+        _storage_path(CONFIG_FILE_REL_PATH_VS_SRORAGE), {ALERT_FIELD_ALERTS: {}, ALERT_FIELD_WATCHLIST: []}
     )
 
 
 def save_config(config: Dict[str, Any]):
-    ensure_app_dir()
-    _save_json(_path(CONFIG_FILE), config)
+    ensure_storage_dir()
+    _save_json(_storage_path(CONFIG_FILE_REL_PATH_VS_SRORAGE), config)
 
 
 def load_watchlist() -> List[str]:

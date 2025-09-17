@@ -5,3 +5,4 @@ MyVenvFolder/
 #Ignore because in obsidian vault
 plan_overview.md
 .stockalert/cache
+stock_alert/stock_monitor.log

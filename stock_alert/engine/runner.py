@@ -3,15 +3,11 @@ import time
 from typing import Callable, Dict, Iterable, Optional
 from datetime import datetime
 
-from stock_alert.common.constants import (
-    CACHE_FIELD_LAST_ALERT_TRIGGER_TS,
-    CACHE_FIELD_ALERTS_HISTORY,
-)
-
+from stock_alert.common.constants import *
 from ..common.utils import LOG, seconds_from_interval
 from ..core import Alert, Quote, CacheConfig
 from ..data_providers import DataProvider
-from ..store.cache import get_latest_cache_file, save_to_cache
+from ..store import *
 
 
 def run_check(
@@ -35,7 +31,7 @@ def run_check(
         cache_data = {}
 
     last_trigger_ts = cache_data.get(CACHE_FIELD_LAST_ALERT_TRIGGER_TS, {})
-    alerts_history = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
+    alerts_history_cache = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
 
     quotes: Dict[str, Quote] = {}
     for sym in sorted(symbols):
@@ -47,40 +43,38 @@ def run_check(
     if on_tick:
         on_tick(quotes)
 
-    for name, alert in alerts.items():
+    for alert_key, alert in alerts.items():
         q = quotes.get(alert.symbol)
         if not q:
             continue
 
-        last_ts = last_trigger_ts.get(name)
-        # Get last alert record for this alert name, if any
-        last_records = alerts_history.get(name) or []
-        last_info = last_records[-1] if last_records else None
-        should, reason = alert.should_trigger(q, now_ts, last_ts, last_info)
+        last_ts = last_trigger_ts.get(alert_key)
+        # Get last alert record for this alert name, if any (for checking last trigger and other info)
+        last_records = alerts_history_cache.get(alert_key) or []
+        last_record = last_records[-1] if last_records else None
+        should_trigger, reason_trigger = alert.should_trigger(q, now_ts, last_ts, last_record)
 
-        if should:
-            last_trigger_ts[name] = readable_timestamp
+        if should_trigger:
+            last_trigger_ts[alert_key] = readable_timestamp
             # append alert info to history
             record = {
-                "trigger_ts": readable_timestamp,
-                "price_value": q.price,
-                "volume": q.volume,
-                "reason": reason,
+                ALERT_RECORD_FIELD_TRIGGER_TS: readable_timestamp,
+                ALERT_RECORD_FIELD_NAME: alert.name,
             }
             # update in-memory structures
-            if name not in alerts_history:
-                alerts_history[name] = []
-            alerts_history[name].append(record)
+            if alert_key not in alerts_history_cache:
+                alerts_history_cache[alert_key] = []
+            alerts_history_cache[alert_key].append(record)
             # persist both timestamps and history, preserving other cache fields
             save_to_cache(
                 cache_config,
                 {
                     CACHE_FIELD_LAST_ALERT_TRIGGER_TS: last_trigger_ts,
-                    CACHE_FIELD_ALERTS_HISTORY: alerts_history,
+                    CACHE_FIELD_ALERTS_HISTORY: alerts_history_cache,
                 },
             )
             if on_alert:
-                on_alert(name, alert, q, reason)
+                on_alert(alert_key, alert, q, reason_trigger)
 
 
 def run_loop(

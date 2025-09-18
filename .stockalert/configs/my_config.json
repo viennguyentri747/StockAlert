@@ -120,5 +120,11 @@
     "rel_dir_path_vs_storage": "cache",
     "max_files": 5,
     "max_file_size": 10240
+  },
+  "logging": {
+    "rel_config_path": "logs",
+    "config_file_name": "stock_monitor.log",
+    "max_rotate_config": 5,
+    "max_config_size_mb": 5
   }
 }

@@ -8,6 +8,8 @@ from typing import List, Literal, Optional, Union
 from datetime import datetime
 import traceback
 import shlex
+import json
+from .constants import *
 
 
 def seconds_from_interval(s: str) -> int:
@@ -43,7 +45,81 @@ def change_dir(path: str):
     os.chdir(path)
 
 
-def LOG(*values: object, sep: str = " ", end: str = "\n", file=None, highlight: bool = False, show_time=True, show_traceback: bool = False, flush: bool = True) -> None:
+_LOGGING_SETTINGS_CACHE: Optional[dict] = None
+
+
+def _ensure_dir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+
+
+def _load_current_config() -> dict:
+    try:
+        cfg_path = Path(DEFAULT_STORAGE_DIR_PATH) / CONFIG_FILE_REL_PATH_VS_SRORAGE
+        with cfg_path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _get_logging_settings() -> dict:
+    global _LOGGING_SETTINGS_CACHE
+    if _LOGGING_SETTINGS_CACHE is not None:
+        return _LOGGING_SETTINGS_CACHE
+
+    # Load new logging config
+    cfg = _load_current_config()
+    logging_cfg = cfg.get(LOGGING_CORE_CONFIG_KEY, {}) if isinstance(cfg, dict) else {}
+    rel_dir = logging_cfg.get(LOG_FIELD_DIR_REL_PATH_VS_STORAGE, "logs")
+    file_name = logging_cfg.get(LOG_FIELD_FILE_NAME, "stock_monitor.log")
+    max_files = int(logging_cfg.get(LOG_FIELD_MAX_FILES, 5) or 5)
+    max_size_mb = float(logging_cfg.get(LOG_FIELD_MAX_FILE_SIZE_MB, 5) or 5)
+
+    abs_dir = Path(DEFAULT_STORAGE_DIR_PATH) / rel_dir
+    _ensure_dir(abs_dir)
+
+    _LOGGING_SETTINGS_CACHE = {
+        LOG_CACHE_ABS_DIR: abs_dir,
+        LOG_CACHE_FIELD_FILE_NAME: file_name,
+        LOG_CACHE_FIELD_MAX_FILES: max_files,
+        LOG_CACHE_FIELD_MAX_FILE_SIZE_BYTES: int(max_size_mb * 1024 * 1024),
+    }
+    return _LOGGING_SETTINGS_CACHE
+
+
+def _rotate_logs_if_needed(log_path: Path, max_files: int, max_size_bytes: int) -> None:
+    try:
+        if log_path.exists() and log_path.stat().st_size > max_size_bytes:
+            # Delete the oldest if it exists
+            oldest = log_path.with_suffix(log_path.suffix + f".{max_files}")
+            if oldest.exists():
+                oldest.unlink(missing_ok=True)
+
+            # Shift existing rotations
+            for i in range(max_files - 1, 0, -1):
+                src = log_path.with_suffix(log_path.suffix + f".{i}")
+                if src.exists():
+                    dst = log_path.with_suffix(log_path.suffix + f".{i+1}")
+                    src.rename(dst)
+
+            # Rotate current file
+            first_rotated = log_path.with_suffix(log_path.suffix + ".1")
+            log_path.rename(first_rotated)
+    except Exception:
+        # Best-effort rotation; do not break logging on errors
+        pass
+
+
+def LOG(
+    *values: object,
+    sep: str = " ",
+    end: str = "\n",
+    file=None,
+    highlight: bool = False,
+    show_time: bool = True,
+    show_traceback: bool = False,
+    flush: bool = True,
+    log_level: LogLevel = LogLevel.DEBUG,
+) -> None:
     # Prepare the message
     message = sep.join(str(value) for value in values)
 
@@ -73,6 +149,25 @@ def LOG(*values: object, sep: str = " ", end: str = "\n", file=None, highlight: 
         print(f"{RESET}", end=end, file=file, flush=flush)  # reset
     else:
         print(message, end=end, file=file, flush=flush)
+
+    # Write to log file with rotation
+    try:
+        settings = _get_logging_settings()
+        log_abs_dir: Path = settings[LOG_CACHE_ABS_DIR]
+        log_file_name: str = settings[LOG_CACHE_FIELD_FILE_NAME]
+        max_files: int = settings[LOG_CACHE_FIELD_MAX_FILES]
+        max_size_bytes: int = settings[LOG_CACHE_FIELD_MAX_FILE_SIZE_BYTES]
+
+        log_path = log_abs_dir / log_file_name
+
+        _rotate_logs_if_needed(log_path, max_files, max_size_bytes)
+
+        level_prefix = f"[{log_level}] " if log_level else ""
+        with log_path.open("a", encoding="utf-8") as lf:
+            lf.write(f"{level_prefix}{message}{end}")
+    except Exception:
+        # Swallow logging-to-file errors to not impact main flow
+        pass
 
 
 def is_diff_ignore_eol(file1: Path, file2: Path) -> bool:
@@ -120,7 +215,7 @@ def read_value_from_credential_file(credentials_file_path: str, key_to_read: str
 
 def show_noti(title="Notification", message="Noti!", duration=5):
     run_shell(
-        cmd=f"~/local_tools/dev_common/noti_utils.py --title {shell_escape(title)} --message {shell_escape(message)} --duration {duration}", check_throw_exception_on_exit_code=False, verbose= False)
+        cmd=f"~/local_tools/dev_common/noti_utils.py --title {shell_escape(title)} --message {shell_escape(message)} --duration {duration}", check_throw_exception_on_exit_code=False, verbose=False)
 
 
 def shell_escape(str_to_escape: str):

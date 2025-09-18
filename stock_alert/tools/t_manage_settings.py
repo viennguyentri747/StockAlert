@@ -71,7 +71,7 @@ def cmd_alerts_list(_args: argparse.Namespace):
 
     # Load cache data to get last trigger timestamps
     config = load_config()
-    cache_config = CacheConfig.from_dict(config.get("cache", {}))
+    cache_config = CacheConfig.from_dict(config.get(CACHE_CORE_CONFIG_KEY, {}))
     cache_file = Path(cache_config.directory) / cache_config.file_name
 
     cache_data = {}

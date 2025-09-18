@@ -32,13 +32,18 @@ class Operation(str, Enum):
 
 ALERT_LOG_TAG = "[ALERT]"
 
+# Core config keys (highest level)
+ALERT_CORE_CONFIG_KEY = "alerts"
+LOGGING_CORE_CONFIG_KEY = "logging"
+CACHE_CORE_CONFIG_KEY = "cache"
+
+
 # JSON field keys (avoid magic strings)
 ALERT_FIELD_SYMBOL = "symbol"
 ALERT_FIELD_KIND = "kind"
 ALERT_FIELD_VALUE = "value"
 ALERT_FIELD_OP = "op"
 ALERT_FIELD_ALERT_COOLDOWN = "alert_min_cooldown_secs"
-ALERT_FIELD_ALERTS = "alerts"
 ALERT_FIELD_WATCHLIST = "watchlist"
 
 CACHE_FIELD_LAST_ALERTS_TRIGGER_TS = "last_alerts_trigger_ts"
@@ -59,3 +64,21 @@ CACHE_FIELD_FILE_NAME = "file_name"
 # Credential key names
 ALPHAVANTAGE_API_KEY = "ALPHAVANTAGE_API_TOKEN"
 FINNHUB_API_KEY = "FINNHUB_API_TOKEN"
+
+# Logging configuration keys
+LOG_FIELD_DIR_REL_PATH_VS_STORAGE = "rel_config_path"
+LOG_FIELD_FILE_NAME = "config_file_name"
+LOG_FIELD_MAX_FILES = "max_rotate_config"
+LOG_FIELD_MAX_FILE_SIZE_MB = "max_config_size_mb"
+
+LOG_CACHE_ABS_DIR = "cache_rel_dir_path_vs_storage"
+LOG_CACHE_FIELD_FILE_NAME = "cache_file_name"
+LOG_CACHE_FIELD_MAX_FILES = "cache_max_files"
+LOG_CACHE_FIELD_MAX_FILE_SIZE_BYTES = "cache_max_file_size_byte"
+
+
+class LogLevel(str, Enum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"

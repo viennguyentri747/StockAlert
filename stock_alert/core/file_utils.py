@@ -30,7 +30,7 @@ def _save_json(path: str, data):
 def load_config() -> Dict[str, Any]:
     ensure_storage_dir()
     return _load_json(
-        _storage_path(CONFIG_FILE_REL_PATH_VS_SRORAGE), {ALERT_FIELD_ALERTS: {}, ALERT_FIELD_WATCHLIST: []}
+        _storage_path(CONFIG_FILE_REL_PATH_VS_SRORAGE), {ALERT_CORE_CONFIG_KEY: {}, ALERT_FIELD_WATCHLIST: []}
     )
 
 
@@ -53,12 +53,12 @@ def save_watchlist(symbols: List[str]):
 
 def load_alerts() -> Dict[str, Dict]:
     config = load_config()
-    return config.get(ALERT_FIELD_ALERTS, {})
+    return config.get(ALERT_CORE_CONFIG_KEY, {})
 
 
 def save_alerts(alerts: Dict[str, Dict]):
     config = load_config()
-    config[ALERT_FIELD_ALERTS] = alerts
+    config[ALERT_CORE_CONFIG_KEY] = alerts
     save_config(config)
 
 

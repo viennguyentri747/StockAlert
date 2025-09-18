@@ -37,7 +37,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         config = load_config()
 
-        cache_config = CacheConfig.from_dict(config.get("cache", {}))
+        cache_config = CacheConfig.from_dict(config.get(CACHE_CORE_CONFIG_KEY, {}))
         cache_dir = Path(cache_config.directory)
         cache_dir.mkdir(parents=True, exist_ok=True)
 

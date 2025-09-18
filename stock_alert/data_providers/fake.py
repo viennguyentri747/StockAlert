@@ -1,9 +1,7 @@
 import random
 from typing import Optional
-
-from ..core import Quote
 from .base import DataProvider
-
+from stock_alert.common import *
 
 class FakeDataProvider(DataProvider):
     def __init__(self, seed: Optional[int] = None):

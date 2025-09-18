@@ -1,16 +1,10 @@
 import argparse
 import sys
-import time
 from typing import List, Optional
-from datetime import datetime
 import json
 from pathlib import Path
-
-from stock_alert.common.constants import *
-from stock_alert.common.utils import LOG
-from stock_alert.core import Alert, parse_condition
-from stock_alert.store import *
-from stock_alert.core.models import CacheConfig
+from stock_alert.common import *
+from stock_alert.core import *
 
 
 def cmd_watchlist_add(args: argparse.Namespace):
@@ -54,6 +48,19 @@ def cmd_alert_create(args: argparse.Namespace):
         LOG(f"Error: Invalid condition. {e}", file=sys.stderr)
         sys.exit(1)
 
+def parse_condition(cond: str) -> Tuple[AlertKind, Operation, float]:
+    _KINDS_PATTERN = "|".join(k.value for k in AlertKind)
+    ALERT_RE = re.compile(rf"^({_KINDS_PATTERN})\s*(>=|<=)\s*(-?\d+(?:\.\d+)?)$", re.IGNORECASE, )
+    m = ALERT_RE.match(cond.strip())
+    if not m:
+        raise ValueError(
+            f"Condition must be like: '{AlertKind.PRICE_VALUE.value} >= 200', '{AlertKind.PCT_DAY.value} <= -3', "
+            f"'{AlertKind.VOLUME.value} >= 1000000', '{AlertKind.PRICE_PERCENT_OFFSET_SINCE_LAST_ALERT.value} >= 5', "
+        )
+    kind_s, op_s, value = m.group(1).lower(), m.group(2), float(m.group(3))
+    kind = AlertKind(kind_s)
+    op = Operation(op_s)
+    return kind, op, value
 
 def cmd_alerts_list(_args: argparse.Namespace):
     """Lists all configured alerts."""

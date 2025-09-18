@@ -1,12 +1,8 @@
-import re
-import time
 from dataclasses import dataclass, asdict
 from typing import Optional, Tuple, Dict, Any
 from datetime import datetime
-
-from stock_alert.common.utils import LOG
-
-from ..common.constants import *
+from .utils import *
+from .constants import *
 
 
 @dataclass
@@ -15,7 +11,6 @@ class CacheConfig:
     directory: str
     max_files: int
     max_file_size: int
-
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "CacheConfig":
@@ -44,7 +39,7 @@ class Alert:
     value: float
     alert_cooldown_secs: int = 300
 
-    def __init__(self, symbol: str, kind: AlertKind, op: Operation, 
+    def __init__(self, symbol: str, kind: AlertKind, op: Operation,
                  value: float, alert_cooldown_secs: int = 300):
         """Initialize Alert with validation or custom logic."""
         self.symbol = symbol
@@ -52,7 +47,7 @@ class Alert:
         self.op = op
         self.value = value
         self.alert_cooldown_secs = alert_cooldown_secs
-        self.name = f"{self.symbol}-{self.kind.value}-{self.op.value}-{self.value}"
+        self.name = f"{self.symbol} {self.kind.value} {self.op.value} {self.value}"
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Alert":
@@ -71,13 +66,7 @@ class Alert:
         d[ALERT_FIELD_OP] = self.op.value
         return d
 
-    def should_trigger(
-        self,
-        q: Quote,
-        now_ts: float,
-        last_trigger_ts: Optional[float] = None,
-        last_alert_info: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[bool, str]:
+    def should_trigger(self, q: Quote, now_ts: float, last_trigger_ts: Optional[float] = None, last_alert_info: Optional[Dict[str, Any]] = None, ) -> Tuple[bool, str]:
         # Setup value
         if self.kind == AlertKind.PRICE_VALUE:
             new_value = q.price
@@ -85,18 +74,29 @@ class Alert:
             new_value = q.pct_day
         elif self.kind == AlertKind.VOLUME:
             new_value = q.volume
-        elif self.kind == AlertKind.LAST_ALERT_PRICE_OFFSET_VALUE:
-            if not last_alert_info or AlertKind.PRICE_VALUE.value not in last_alert_info:
-                return False, "No prior alert data"
-            prev_price = float(last_alert_info[AlertKind.PRICE_VALUE.value])  # last alerted price
-            new_value = q.price - prev_price
-        elif self.kind == AlertKind.LAST_ALERT_PRICE_OFFSET_PERCENT:
-            if not last_alert_info or AlertKind.PRICE_VALUE.value not in last_alert_info:
-                return False, "No prior alert data"
-            prev_price = float(last_alert_info[AlertKind.PRICE_VALUE.value])  # last alerted price
-            if prev_price == 0:
-                return False, "Previous price is zero"
-            new_value = ((q.price - prev_price) / prev_price) * 100
+        elif self.kind == AlertKind.PRICE_VALUE_OFFSET_SINCE_LAST_ALERT:
+            if not last_alert_info or CACHE_FIELD_ALERT_LAST_PRICE not in last_alert_info:
+                # If no last alert info, compared with price value change today (vs yesterday)
+                LOG(f"No last alert info: {q.symbol}")
+                if q.pct_day == 0:
+                    new_value = 0  # No change from yesterday
+                else:
+                    yesterday_price = q.price / (1 + q.pct_day / 100)  # Yesterday's price based on day pct change
+                    new_value = q.price - yesterday_price
+            else:
+                prev_price = float(last_alert_info[CACHE_FIELD_ALERT_LAST_PRICE])  # last alerted price
+                new_value = q.price - prev_price
+        elif self.kind == AlertKind.PRICE_PERCENT_OFFSET_SINCE_LAST_ALERT:
+            if not last_alert_info or CACHE_FIELD_ALERT_LAST_PRICE not in last_alert_info:
+                # If no last alert info, compared with price pct change today
+                LOG(f"No last alert info: {q.symbol}")
+                new_value = q.pct_day
+            else:
+                prev_price = float(last_alert_info[CACHE_FIELD_ALERT_LAST_PRICE])  # last alerted price
+                if prev_price == 0:
+                    return False, "Previous price is zero"
+                new_value = ((q.price - prev_price) / prev_price) * 100
+                LOG(f"Previous price: {prev_price}, Current price: {q.price}, Pct change: {new_value}")
         else:
             return False, f"Unsupported alert kind: {self.kind}"
 
@@ -121,40 +121,15 @@ class Alert:
             else:
                 # It's already a Unix timestamp
                 last_trigger_unix = last_trigger_ts
-            
+
             if now_ts - last_trigger_unix < self.alert_cooldown_secs:
-                LOG("Alert cooldown active")
-                return False, "Cooldown active"
+                return False, f"Condition met {new_value} {self.op.value} {self.value}, but cooldown is active -> Not triggering!"
 
         if cond:
-            if self.kind == AlertKind.LAST_ALERT_PRICE_OFFSET_VALUE:
+            if self.kind == AlertKind.PRICE_VALUE_OFFSET_SINCE_LAST_ALERT:
                 # Include more context for delta-based alerts
-                return True, (
-                    f"{self.kind.value} {self.op.value} {self.value} "
-                    f"(delta {new_value})"
-                )
-            elif self.kind == AlertKind.LAST_ALERT_PRICE_OFFSET_PERCENT:
+                return True, (f"{self.kind.value} {self.op.value} {self.value} " f"(delta {new_value})")
+            elif self.kind == AlertKind.PRICE_PERCENT_OFFSET_SINCE_LAST_ALERT:
                 return True, f"{self.kind.value} {self.op.value} {self.value} (now {new_value:.2f}%)"
             return True, f"{self.kind.value} {self.op.value} {self.value} (now {new_value})"
         return False, "Condition not met"
-
-
-# Update the regex pattern to include the new alert kinds
-_KINDS_PATTERN = "|".join(k.value for k in AlertKind)
-ALERT_RE = re.compile(
-    rf"^({_KINDS_PATTERN})\s*(>=|<=)\s*(-?\d+(?:\.\d+)?)$",
-    re.IGNORECASE,
-)
-
-
-def parse_condition(cond: str) -> Tuple[AlertKind, Operation, float]:
-    m = ALERT_RE.match(cond.strip())
-    if not m:
-        raise ValueError(
-            f"Condition must be like: '{AlertKind.PRICE_VALUE.value} >= 200', '{AlertKind.PCT_DAY.value} <= -3', "
-            f"'{AlertKind.VOLUME.value} >= 1000000', '{AlertKind.LAST_ALERT_PRICE_OFFSET_PERCENT.value} >= 5', "
-        )
-    kind_s, op_s, value = m.group(1).lower(), m.group(2), float(m.group(3))
-    kind = AlertKind(kind_s)
-    op = Operation(op_s)
-    return kind, op, value

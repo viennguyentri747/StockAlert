@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Protocol
-
-from ..core import Quote
-
+from stock_alert.common import *
 
 class DataProvider(ABC):
     @abstractmethod

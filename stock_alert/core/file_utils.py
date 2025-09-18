@@ -1,10 +1,7 @@
 import json
 import os
-from dataclasses import asdict
 from typing import Any, Dict, List
-
-from ..common.constants import *
-from ..core import Alert
+from stock_alert.common import *
 
 
 def ensure_storage_dir():

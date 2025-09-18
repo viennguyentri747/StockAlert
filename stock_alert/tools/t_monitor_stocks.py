@@ -1,16 +1,10 @@
 import argparse
-import subprocess
 import sys
-import time
 import traceback
 from typing import List, Optional
-
-from stock_alert.common.constants import *
-from stock_alert.common.utils import LOG, show_noti
+from stock_alert.common import *
 from stock_alert.data_providers import *
-from stock_alert.engine import run_loop
-from stock_alert.store import *
-from stock_alert.core.models import Alert, CacheConfig
+from stock_alert.core import *
 
 
 def _get_provider(name: str) -> DataProvider:
@@ -42,7 +36,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     try:
         config = load_config()
-        
+
         cache_config = CacheConfig.from_dict(config.get("cache", {}))
         cache_dir = Path(cache_config.directory)
         cache_dir.mkdir(parents=True, exist_ok=True)
@@ -69,7 +63,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             LOG(f"{ALERT_LOG_TAG} {alert_key}. Current price=${q.price}, % day={q.pct_day}, vol={q.volume}")
             show_noti(title=alert.name, message=f"{reason}")
 
-        # Run the monitoring loop   
+        # Run the monitoring loop
         run_loop(provider=provider, symbols=symbols, alerts=alerts, cache_config=cache_config,
                  interval_str=args.interval, iterations=args.iterations, on_alert=on_alert, on_tick=on_tick, )
         LOG("Monitoring finished.")

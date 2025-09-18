@@ -21,8 +21,8 @@ class AlertKind(str, Enum):
     PRICE_VALUE = "price_value"
     VOLUME = "volume"
     PCT_DAY = "price_percent_day"
-    LAST_ALERT_PRICE_OFFSET_VALUE = "price_since_last_alert"
-    LAST_ALERT_PRICE_OFFSET_PERCENT = "last_alert_price_offset_percent"
+    PRICE_VALUE_OFFSET_SINCE_LAST_ALERT = "price_value_offset_since_last_alert"
+    PRICE_PERCENT_OFFSET_SINCE_LAST_ALERT = "price_percent_offset_since_last_alert"
 
 
 class Operation(str, Enum):
@@ -40,8 +40,10 @@ ALERT_FIELD_OP = "op"
 ALERT_FIELD_ALERT_COOLDOWN = "alert_min_cooldown_secs"
 ALERT_FIELD_ALERTS = "alerts"
 ALERT_FIELD_WATCHLIST = "watchlist"
-CACHE_FIELD_LAST_ALERT_TRIGGER_TS = "last_alert_trigger_ts"
+
+CACHE_FIELD_LAST_ALERTS_TRIGGER_TS = "last_alerts_trigger_ts"
 CACHE_FIELD_ALERTS_HISTORY = "alerts"
+CACHE_FIELD_ALERT_LAST_PRICE = "last_alert_price"
 
 ALERT_RECORD_FIELD_TRIGGER_TS = "trigger_ts"
 ALERT_RECORD_FIELD_NAME = "alert_name"

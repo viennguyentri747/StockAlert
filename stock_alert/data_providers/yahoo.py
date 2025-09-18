@@ -1,8 +1,7 @@
 import json
 import urllib.parse
 import urllib.request
-
-from ..core import Quote
+from stock_alert.common import *
 from .base import DataProvider
 
 

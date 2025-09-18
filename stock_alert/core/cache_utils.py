@@ -1,11 +1,8 @@
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+from common import *
 import re
-
-from stock_alert.common.utils import *
-
-from ..core.models import CacheConfig
 
 
 def get_latest_cache_file(config: CacheConfig) -> Path:
@@ -61,7 +58,7 @@ def save_to_cache(config: CacheConfig, data: Dict[str, Any]) -> None:
             with open(latest_cache_file, "r") as f:
                 existing = json.load(f)
         except Exception:
-            existing = {}
+            pass
 
     # Shallow merge (top-level) — callers should provide full structures per key
     merged = {**existing, **data}

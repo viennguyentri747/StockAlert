@@ -8,25 +8,25 @@
       "value": 255.0
     },
     "goog-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "GOOGL",
       "value": 1
     },
     "goog-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "GOOGL",
       "value": -1
     },
     "goog-percent-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 1
+      "value": -1
     },
     "gld-price": {
       "alert_min_cooldown_secs": 6000,
@@ -36,49 +36,49 @@
       "value": 350
     },
     "ttd-price": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value",
       "op": ">=",
       "symbol": "TTD",
       "value": 47
     },
     "ttd-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "TTD",
       "value": 1
     },
     "ttd-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "TTD",
       "value": -1
     },
     "gld-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "GLD",
       "value": 1
     },
     "gld-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "GLD",
       "value": -1
     },
     "lulu-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "LULU",
       "value": 1
     },
     "lulu-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "LULU",
@@ -92,14 +92,14 @@
       "value": 1.5
     },
     "pypl-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "PYPL",
       "value": 1
     },
     "pypl-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
+      "alert_min_cooldown_secs": 1,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "PYPL",

@@ -1,6 +1,7 @@
 .my_credentials*
 __pycache__/
 MyVenvFolder/
+stock_monitor.log
 
 #Ignore because in obsidian vault
 plan_overview.md

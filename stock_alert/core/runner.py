@@ -2,12 +2,10 @@ import json
 import time
 from typing import Callable, Dict, Iterable, Optional
 from datetime import datetime
-
-from stock_alert.common.constants import *
-from ..common.utils import LOG, seconds_from_interval
-from ..core import Alert, Quote, CacheConfig
-from ..data_providers import DataProvider
-from ..store import *
+import pdb
+from stock_alert.common import *
+from stock_alert.data_providers import DataProvider
+from stock_alert.core.cache_utils import *
 
 
 def run_check(
@@ -30,8 +28,8 @@ def run_check(
     else:
         cache_data = {}
 
-    last_trigger_ts = cache_data.get(CACHE_FIELD_LAST_ALERT_TRIGGER_TS, {})
-    alerts_history_cache = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
+    last_trigger_ts = cache_data.get(CACHE_FIELD_LAST_ALERTS_TRIGGER_TS, {})
+    alerts_history_cache: Dict[str, List[Dict]] = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
 
     quotes: Dict[str, Quote] = {}
     for sym in sorted(symbols):
@@ -51,25 +49,28 @@ def run_check(
         last_ts = last_trigger_ts.get(alert_key)
         # Get last alert record for this alert name, if any (for checking last trigger and other info)
         last_records = alerts_history_cache.get(alert_key) or []
+        # pdb.set_trace()
         last_record = last_records[-1] if last_records else None
         should_trigger, reason_trigger = alert.should_trigger(q, now_ts, last_ts, last_record)
+        LOG(f"Checking alert {alert_key} for {alert.symbol}: {q.price} | last trigger: {last_ts} | last record: {last_record}.  Result: Should trigger: {should_trigger}, Reason: {reason_trigger}")
 
         if should_trigger:
             last_trigger_ts[alert_key] = readable_timestamp
             # append alert info to history
-            record = {
+            alert_single_record = {
                 ALERT_RECORD_FIELD_TRIGGER_TS: readable_timestamp,
                 ALERT_RECORD_FIELD_NAME: alert.name,
+                CACHE_FIELD_ALERT_LAST_PRICE: q.price,
             }
             # update in-memory structures
             if alert_key not in alerts_history_cache:
                 alerts_history_cache[alert_key] = []
-            alerts_history_cache[alert_key].append(record)
+            alerts_history_cache[alert_key].append(alert_single_record)
             # persist both timestamps and history, preserving other cache fields
             save_to_cache(
                 cache_config,
-                {
-                    CACHE_FIELD_LAST_ALERT_TRIGGER_TS: last_trigger_ts,
+                data={
+                    CACHE_FIELD_LAST_ALERTS_TRIGGER_TS: last_trigger_ts,
                     CACHE_FIELD_ALERTS_HISTORY: alerts_history_cache,
                 },
             )
@@ -104,5 +105,5 @@ def run_loop(
         if iterations is not None and i >= iterations:
             break
 
-        LOG(f"Next check in {interval_sec} seconds...")
+        LOG(f"Next check for SYMBOLS {', '.join(symbols)} in {interval_sec} secs...")
         time.sleep(max(1, interval_sec))

@@ -12,7 +12,7 @@
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 1
+      "value": 2
     },
     "goog-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
@@ -56,9 +56,9 @@
       "symbol": "TTD",
       "value": -1
     },
-    "gld-value-up-trailing": {
+    "gld-percent-up-trailing": {
       "alert_min_cooldown_secs": 300,
-      "kind": "price_value_offset_since_last_alert",
+      "kind": "price_percent_offset_since_last_alert",
       "op": ">=",
       "symbol": "GLD",
       "value": 1
@@ -89,7 +89,7 @@
       "kind": "price_percent_day",
       "op": ">=",
       "symbol": "PYPL",
-      "value": 1.5
+      "value": 2
     },
     "pypl-value-up-trailing": {
       "alert_min_cooldown_secs": 300,

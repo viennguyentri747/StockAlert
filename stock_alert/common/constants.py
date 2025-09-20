@@ -11,6 +11,7 @@ CONFIG_FILE_REL_PATH_VS_SRORAGE = "configs/current_config.json"
 
 DEFAULT_MONITOR_INTERVAL = "15s"
 DEFAULT_COOLDOWN_SEC = 300
+DEFAULT_OLD_PRICE_CACHE_INTERVAL_SECS = 60
 
 REPO_PATH = Path.home() / "stock_alert/"
 DEFAULT_STORAGE_DIR_PATH = f"{REPO_PATH}/.stockalert"
@@ -49,6 +50,12 @@ ALERT_FIELD_WATCHLIST = "watchlist"
 CACHE_FIELD_LAST_ALERTS_TRIGGER_TS = "last_alerts_trigger_ts"
 CACHE_FIELD_ALERTS_HISTORY = "alerts"
 CACHE_FIELD_ALERT_LAST_PRICE = "last_alert_price"
+CACHE_FIELD_PRICES = "prices"
+CACHE_FIELD_SYMBOL_PRICE = "symbol_price"
+CACHE_FIELD_SYMBOL_PRICE_TIMESTAMP = "symbol_price_ts"
+CACHE_FIELD_LAST_UPDATED_TIMESTAMP = "prices_last_updated_ts"
+CACHE_FIELD_LATEST_PRICES = "latest_prices"
+CACHE_FIELD_OLD_PRICES = "old_prices"
 
 ALERT_RECORD_FIELD_TRIGGER_TS = "trigger_ts"
 ALERT_RECORD_FIELD_NAME = "alert_name"
@@ -60,6 +67,7 @@ CACHE_FIELD_DIR_REL_PATH_VS_STORAGE = "rel_dir_path_vs_storage"
 CACHE_FIELD_MAX_FILES = "max_files"
 CACHE_FIELD_MAX_FILE_SIZE = "max_file_size"
 CACHE_FIELD_FILE_NAME = "file_name"
+CACHE_FIELD_OLD_PRICE_CACHE_INTERVAL_SECS = "old_price_cache_interval_secs"
 
 # Credential key names
 ALPHAVANTAGE_API_KEY = "ALPHAVANTAGE_API_TOKEN"

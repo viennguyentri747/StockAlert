@@ -170,6 +170,22 @@ def LOG(
         pass
 
 
+def parse_timestamp(timestamp_str) -> datetime:
+    """
+    Convert a string timestamp to a datetime object.
+    Args:
+        timestamp_str (str): The timestamp string to parse
+        format_pattern (str): The format pattern (default: "%Y-%m-%d %H:%M:%S")
+    Returns:
+        datetime: The parsed datetime object
+    """
+    format_pattern = "%Y-%m-%d %H:%M:%S"
+    try:
+        return datetime.strptime(timestamp_str, format_pattern)
+    except ValueError as e:
+        raise ValueError(f"Invalid timestamp format: {timestamp_str}. Expected format: {format_pattern}") from e
+
+
 def is_diff_ignore_eol(file1: Path, file2: Path) -> bool:
     return normalize_lines(file1) != normalize_lines(file2)
 

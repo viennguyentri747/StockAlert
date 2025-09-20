@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Callable, Dict, Iterable, Optional
+from typing import Any, Callable, Dict, Iterable, Optional, List
 from datetime import datetime
 import pdb
 from stock_alert.common import *
@@ -8,14 +8,7 @@ from stock_alert.data_providers import DataProvider
 from stock_alert.core.cache_utils import *
 
 
-def run_check(
-    provider: DataProvider,
-    symbols: Iterable[str],
-    alerts: Dict[str, Alert],
-    cache_config: CacheConfig,
-    on_alert: Optional[Callable] = None,
-    on_tick: Optional[Callable] = None,
-) -> None:
+def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, Alert], cache_config: CacheConfig, on_alert: Optional[Callable] = None, on_tick: Optional[Callable] = None, ) -> None:
     """Fetches quotes for all symbols and checks all alerts once."""
     now_ts = time.time()
     # Create a human-readable timestamp
@@ -23,14 +16,30 @@ def run_check(
 
     cache_file = get_latest_cache_file(cache_config)
     if cache_file.exists():
-        with open(cache_file, "r") as f:
-            cache_data = json.load(f)
+        try:
+            with open(cache_file, "r") as f:
+                content = f.read().strip()
+                cache_data = json.loads(content) if content else {}
+        except Exception as e:
+            LOG(f"Warning: Failed to read cache file {cache_file}: {e}. Using empty cache.")
+            cache_data = {}
     else:
         cache_data = {}
 
     last_trigger_ts = cache_data.get(CACHE_FIELD_LAST_ALERTS_TRIGGER_TS, {})
-    alerts_history_cache: Dict[str, List[Dict]] = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
+    if not isinstance(last_trigger_ts, dict):
+        last_trigger_ts = {}
 
+    alerts_history_cache: Dict[str, List[Dict[str, Any]]] = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
+    if not isinstance(alerts_history_cache, dict):
+        alerts_history_cache = {}
+
+    # Use the new schema only: 'old_prices'
+    price_history_cache = cache_data.get(CACHE_FIELD_OLD_PRICES, {})
+    if not isinstance(price_history_cache, dict):
+        price_history_cache = {}
+
+    # last_prices_update_ts = cache_data.get(CACHE_FIELD_LAST_UPDATED_TIMESTAMP)
     quotes: Dict[str, Quote] = {}
     for sym in sorted(symbols):
         try:
@@ -41,6 +50,48 @@ def run_check(
     if on_tick:
         on_tick(quotes)
 
+    cache_updates: Dict[str, Any] = {}
+
+    if quotes:
+        latest_prices_payload: Dict[str, Any] = {}
+        old_price_cache_interval = cache_config.old_price_cache_interval_secs
+        for sym, quote in quotes.items():
+            # Track the latest price per symbol
+            latest_prices_payload[sym] = {
+                CACHE_FIELD_SYMBOL_PRICE_TIMESTAMP: readable_timestamp,
+                CACHE_FIELD_SYMBOL_PRICE: quote.price,
+            }
+
+            # Determine last old price update timestamp for this symbol (if any)
+            last_old_price_update_ts = None
+            existing_history_for_read = price_history_cache.get(sym, [])
+            if isinstance(existing_history_for_read, list) and existing_history_for_read:
+                last_entry = existing_history_for_read[-1]
+                last_ts_raw = last_entry.get(CACHE_FIELD_SYMBOL_PRICE_TIMESTAMP)
+                if isinstance(last_ts_raw, (int, float)):
+                    last_old_price_update_ts = float(last_ts_raw)
+                elif isinstance(last_ts_raw, str):
+                    try:
+                        last_old_price_update_ts = parse_timestamp(last_ts_raw).timestamp()
+                    except ValueError:
+                        last_old_price_update_ts = None
+
+            should_update_old_prices = (last_old_price_update_ts is None or now_ts - last_old_price_update_ts >= old_price_cache_interval)
+            cache_updates[CACHE_FIELD_LAST_UPDATED_TIMESTAMP] = readable_timestamp
+            cache_updates[CACHE_FIELD_LATEST_PRICES] = latest_prices_payload
+            if should_update_old_prices:
+                existing_history = price_history_cache.setdefault(sym, [])
+                if not isinstance(existing_history, list):
+                    existing_history = []
+                    price_history_cache[sym] = existing_history
+
+                existing_history.append({
+                    CACHE_FIELD_SYMBOL_PRICE_TIMESTAMP: readable_timestamp,
+                    CACHE_FIELD_SYMBOL_PRICE: quote.price,
+                })
+                cache_updates[CACHE_FIELD_OLD_PRICES] = price_history_cache
+
+    alerts_updated = False
     for alert_key, alert in alerts.items():
         q = quotes.get(alert.symbol)
         if not q:
@@ -66,16 +117,16 @@ def run_check(
             if alert_key not in alerts_history_cache:
                 alerts_history_cache[alert_key] = []
             alerts_history_cache[alert_key].append(alert_single_record)
-            # persist both timestamps and history, preserving other cache fields
-            save_to_cache(
-                cache_config,
-                data={
-                    CACHE_FIELD_LAST_ALERTS_TRIGGER_TS: last_trigger_ts,
-                    CACHE_FIELD_ALERTS_HISTORY: alerts_history_cache,
-                },
-            )
+            alerts_updated = True
             if on_alert:
                 on_alert(alert_key, alert, q, reason_trigger)
+
+    if alerts_updated:
+        cache_updates[CACHE_FIELD_LAST_ALERTS_TRIGGER_TS] = last_trigger_ts
+        cache_updates[CACHE_FIELD_ALERTS_HISTORY] = alerts_history_cache
+
+    if cache_updates:
+        save_to_cache(cache_config, data=cache_updates)
 
 
 def run_loop(

@@ -11,6 +11,7 @@ class CacheConfig:
     directory: str
     max_files: int
     max_file_size: int
+    old_price_cache_interval_secs: int
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "CacheConfig":
@@ -19,6 +20,7 @@ class CacheConfig:
             directory=f"{DEFAULT_STORAGE_DIR_PATH}/{d[CACHE_FIELD_DIR_REL_PATH_VS_STORAGE]}",
             max_files=d[CACHE_FIELD_MAX_FILES],
             max_file_size=d[CACHE_FIELD_MAX_FILE_SIZE],
+            old_price_cache_interval_secs=int(d.get(CACHE_FIELD_OLD_PRICE_CACHE_INTERVAL_SECS, DEFAULT_OLD_PRICE_CACHE_INTERVAL_SECS) or DEFAULT_OLD_PRICE_CACHE_INTERVAL_SECS),
         )
 
 
@@ -113,7 +115,7 @@ class Alert:
             if isinstance(last_trigger_ts, str):
                 try:
                     # Try to parse the human-readable timestamp
-                    last_trigger_datetime = datetime.strptime(last_trigger_ts, "%Y-%m-%d %H:%M:%S")
+                    last_trigger_datetime = parse_timestamp(last_trigger_ts)
                     last_trigger_unix = last_trigger_datetime.timestamp()
                 except ValueError:
                     # If parsing fails, assume it's an old format and use 0 as default

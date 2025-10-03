@@ -19,73 +19,73 @@
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "GOOGL",
-      "value": -1
+      "value": -2
     },
     "goog-percent-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 1
+      "value": 2
     },
     "gld-price": {
       "alert_min_cooldown_secs": 6000,
       "kind": "price_value",
       "op": ">=",
       "symbol": "GLD",
-      "value": 350
+      "value": 380
     },
     "ttd-price": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_value",
       "op": ">=",
       "symbol": "TTD",
-      "value": 47
+      "value": 54
     },
     "ttd-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "TTD",
-      "value": 1
+      "value": 2
     },
     "ttd-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "TTD",
-      "value": -1
+      "value": -2
     },
     "gld-percent-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": ">=",
       "symbol": "GLD",
-      "value": 1
+      "value": 2
     },
     "gld-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "GLD",
-      "value": -1
+      "value": -2
     },
     "lulu-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "LULU",
-      "value": 1
+      "value": 2
     },
     "lulu-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "LULU",
-      "value": -1
+      "value": -2
     },
     "pypl-price-percent-day-up": {
-      "alert_min_cooldown_secs": 21600,
+      "alert_min_cooldown_secs": 22600,
       "kind": "price_percent_day",
       "op": ">=",
       "symbol": "PYPL",
@@ -96,14 +96,14 @@
       "kind": "price_value_offset_since_last_alert",
       "op": ">=",
       "symbol": "PYPL",
-      "value": 1
+      "value": 2
     },
     "pypl-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_percent_offset_since_last_alert",
       "op": "<=",
       "symbol": "PYPL",
-      "value": -1
+      "value": -2
     }
   },
   "watchlist": [
@@ -119,7 +119,7 @@
     "file_name": "my_cache.json",
     "rel_dir_path_vs_storage": "cache",
     "max_files": 5,
-    "max_file_size": 10240,
+    "max_file_size": 20240,
     "old_price_cache_interval_secs": 300
   },
   "logging": {

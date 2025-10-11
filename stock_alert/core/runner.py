@@ -85,6 +85,24 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
                     existing_history = []
                     price_history_cache[sym] = existing_history
 
+                price_pct_threshold = cache_config.price_pct_threshold_vs_orig
+                if existing_history and price_pct_threshold > 0:
+                    last_entry = existing_history[-1]
+                    if isinstance(last_entry, dict):
+                        last_price = last_entry.get(CACHE_FIELD_SYMBOL_PRICE)
+                        if isinstance(last_price, (int, float)):
+                            last_price_val = float(last_price)
+                            if last_price_val != 0:
+                                price_pct_change = abs((quote.price - last_price_val) / last_price_val) * 100
+                            else:
+                                price_pct_change = INFINITY_FLOAT_VALUE
+
+                            if price_pct_change <= price_pct_threshold:
+                                # Ignore price change if it is less than the threshold, just update the last ignored timestamp
+                                last_entry[CACHE_FIELD_SYMBOL_LAST_IGNORE_PRICE_TS] = readable_timestamp
+                                cache_updates[CACHE_FIELD_OLD_PRICES] = price_history_cache
+                                continue
+
                 existing_history.append({
                     CACHE_FIELD_SYMBOL_PRICE_TIMESTAMP: readable_timestamp,
                     CACHE_FIELD_SYMBOL_PRICE: quote.price,
@@ -99,9 +117,9 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
 
         last_ts = last_trigger_ts.get(alert_key)
         # Get last alert record for this alert name, if any (for checking last trigger and other info)
-        last_records = alerts_history_cache.get(alert_key) or []
+        last_alert_records = alerts_history_cache.get(alert_key) or []
         # pdb.set_trace()
-        last_record = last_records[-1] if last_records else None
+        last_record = last_alert_records[-1] if last_alert_records else None # TODO: fix this because log return sth wrong here
         should_trigger, reason_trigger = alert.should_trigger(q, now_ts, last_ts, last_record)
         LOG(f"Checking alert {alert_key} for {alert.symbol}: {q.price} | last trigger: {last_ts} | last record: {last_record}.  Result: Should trigger: {should_trigger}, Reason: {reason_trigger}")
 

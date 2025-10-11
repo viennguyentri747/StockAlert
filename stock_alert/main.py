@@ -1,7 +1,6 @@
 import argparse
 import sys
 from typing import List, Optional
-
 from stock_alert.tools import t_manage_settings, t_monitor_stocks
 
 

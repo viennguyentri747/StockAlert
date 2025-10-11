@@ -1,46 +1,22 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Source lives in `stock_alert/`:
-  - `core/` (models, parsing), `engine/` (loop/timing), `data_providers/` (quote sources),
-    `store/` (JSON persistence), `cli.py` (argparse CLI), `__main__.py` (entrypoint).
-- Runtime data in `./.stockalert` (override with `STOCKALERT_HOME`). Key files: `watchlist.json`,
-  `alerts.json`, `config.json`.
-- Tests under `tests/` mirror package paths (e.g., `tests/engine/test_runner.py`).
+Source code lives in `stock_alert/`. Keep domain models and parsing helpers inside `core/`, execution timing in `engine/`, data provider integrations under `data_providers/`, and JSON persistence helpers in `store/`. The CLI entry points are `cli.py` and `__main__.py`. Runtime state is stored in `./.stockalert` (override via `STOCKALERT_HOME`) with `watchlist.json`, `alerts.json`, and `config.json`. Mirror new tests inside `tests/` using the same package layout, e.g. `tests/engine/test_runner.py`.
 
 ## Build, Test, and Development Commands
-- Python 3.9+; MVP has no external dependencies.
-- Help: `python -m stock_alert --help`.
-- Watchlist: `python -m stock_alert watchlist add AAPL TSLA`.
-- Create alert: `python -m stock_alert alert create --symbol AAPL --when "price >= 200" --name aapl-200`.
-- Run loop: `python -m stock_alert run --interval 5s --iterations 2 --verbose`.
-- Tests: `pytest -q` (place tests under `tests/`).
+Use Python 3.9+. Inspect available commands with `python -m stock_alert --help`. Add tickers using `python -m stock_alert watchlist add AAPL TSLA`, create alerts through `python -m stock_alert alert create --symbol AAPL --when "price >= 200" --name aapl-200`, and exercise the loop via `python -m stock_alert run --interval 5s --iterations 2 --verbose`. Run the fast test suite with `pytest -q` from the repo root.
 
 ## Coding Style & Naming Conventions
-- Follow PEP 8, 4-space indentation, max line length 100.
-- Use type hints and `@dataclass` where appropriate (see `core/models.py`).
-- Naming: modules/functions `snake_case`, classes `CamelCase`, constants `UPPER_SNAKE_CASE`.
-- Keep CLI changes additive; register new subcommands in `stock_alert/cli.py`.
+Follow PEP 8 with 4-space indentation and max line length 100. Favour type hints and `@dataclass` for immutable models (see `core/models.py`). Name modules and functions in `snake_case`, classes in `CamelCase`, and constants in `UPPER_SNAKE_CASE`. Keep CLI extensions additive by registering new subcommands in `stock_alert/cli.py` without breaking existing flags.
 
 ## Testing Guidelines
-- Framework: `pytest`.
-- Test naming: files `test_*.py`; functions `test_*`.
-- Aim for coverage on parsing, cooldown logic, and interval parsing.
-- Run fast, isolated tests; avoid network or external I/O.
+Author tests with `pytest`. Name files `tests/<pkg>/test_*.py` and functions `test_*`. Focus coverage on parser behaviour, interval parsing, cooldown handling, and alert trigger logic. Tests must be deterministic and avoid external network or file system writes outside `STOCKALERT_HOME`.
 
 ## Commit & Pull Request Guidelines
-- Commits: imperative present, concise subject (≤ 72 chars).
-  Example: `feat(cli): add alerts list subcommand`.
-- PRs: include a short description, usage examples, and any data/config migration notes.
-  Link issues and attach CLI output/screenshots when relevant.
+Write commit subjects in imperative present, ≤72 characters (e.g. `feat(cli): add alerts list subcommand`). Link related issues in the body. Pull requests should summarise behaviour changes, include CLI examples when useful, and describe any data or config migrations needed. Attach screenshots or captured CLI output if it clarifies user-facing updates.
 
 ## Security & Configuration Tips
-- Do not commit real API keys. New providers read secrets from env vars and implement
-  `DataProvider` under `data_providers/`.
-- Keep all writes within `STOCKALERT_HOME`. Use JSON helpers in `store/files.py` for atomic saves.
+Never commit real API keys. Inject provider credentials via environment variables and confine persistence to `STOCKALERT_HOME` by using helpers in `store/files.py` for atomic writes. Document new configuration knobs in `config.json` and surface defaults through the CLI help text.
 
 ## Architecture Overview
-- Event loop in `engine/runner.py`; calls provider `get_quote()` and alert `should_trigger()`.
-- I/O hooks: `on_tick` and `on_alert`.
-- To add a provider, subclass `DataProvider` and wire it via the CLI.
-
+The event loop in `engine/runner.py` orchestrates ticks, fetching quotes through each `DataProvider.get_quote()` and evaluating alerts via `Alert.should_trigger()`. Hooks `on_tick` and `on_alert` handle I/O side effects. When adding a provider, subclass `DataProvider`, keep network access encapsulated, and expose it through CLI wiring so it can be selected without code changes.

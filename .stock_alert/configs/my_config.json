@@ -1,11 +1,11 @@
 {
   "alerts": {
-    "google255": {
+    "google260": {
       "alert_min_cooldown_secs": 6000,
       "kind": "price_value",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 255.0
+      "value": 260.0
     },
     "goog-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
@@ -40,7 +40,7 @@
       "kind": "price_value",
       "op": ">=",
       "symbol": "TTD",
-      "value": 54
+      "value": 58
     },
     "ttd-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
@@ -84,13 +84,6 @@
       "symbol": "LULU",
       "value": -2
     },
-    "pypl-price-percent-day-up": {
-      "alert_min_cooldown_secs": 22600,
-      "kind": "price_percent_day",
-      "op": ">=",
-      "symbol": "PYPL",
-      "value": 2
-    },
     "pypl-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_value_offset_since_last_alert",
@@ -104,6 +97,20 @@
       "op": "<=",
       "symbol": "PYPL",
       "value": -2
+    },
+    "bull-percent-up-trailing": {
+      "alert_min_cooldown_secs": 300,
+      "kind": "price_percent_offset_since_last_alert",
+      "op": ">=",
+      "symbol": "BULL",
+      "value": 3
+    },
+    "bull-percent-down-trailing": {
+      "alert_min_cooldown_secs": 300,
+      "kind": "price_percent_offset_since_last_alert",
+      "op": "<=",
+      "symbol": "BULL",
+      "value": -3
     }
   },
   "watchlist": [
@@ -120,7 +127,8 @@
     "rel_dir_path_vs_storage": "cache",
     "max_files": 5,
     "max_file_size": 20240,
-    "old_price_cache_interval_secs": 300
+    "old_price_cache_interval_secs": 60,
+    "price_pct_threshold_vs_orig": 0.25
   },
   "logging": {
     "rel_config_path": "logs",

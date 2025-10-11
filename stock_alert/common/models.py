@@ -12,6 +12,7 @@ class CacheConfig:
     max_files: int
     max_file_size: int
     old_price_cache_interval_secs: int
+    price_pct_threshold_vs_orig: float
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "CacheConfig":
@@ -21,6 +22,13 @@ class CacheConfig:
             max_files=d[CACHE_FIELD_MAX_FILES],
             max_file_size=d[CACHE_FIELD_MAX_FILE_SIZE],
             old_price_cache_interval_secs=int(d.get(CACHE_FIELD_OLD_PRICE_CACHE_INTERVAL_SECS, DEFAULT_OLD_PRICE_CACHE_INTERVAL_SECS) or DEFAULT_OLD_PRICE_CACHE_INTERVAL_SECS),
+            price_pct_threshold_vs_orig=float(
+                d.get(
+                    CACHE_FIELD_PRICE_PCT_THRESHOLD_VS_ORIG,
+                    DEFAULT_CACHE_PRICE_PCT_THRESHOLD_VS_ORIG,
+                )
+                or DEFAULT_CACHE_PRICE_PCT_THRESHOLD_VS_ORIG
+            ),
         )
 
 

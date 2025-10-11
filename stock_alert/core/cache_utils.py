@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-from common import *
+from stock_alert.common import *
 import re
 
 

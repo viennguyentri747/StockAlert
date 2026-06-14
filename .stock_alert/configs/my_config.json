@@ -1,18 +1,11 @@
 {
   "alerts": {
-    "google260": {
-      "alert_min_cooldown_secs": 6000,
+    "google280": {
+      "alert_min_cooldown_secs": 12000,
       "kind": "price_value",
       "op": ">=",
       "symbol": "GOOGL",
-      "value": 260.0
-    },
-    "goog-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_value_offset_since_last_alert",
-      "op": ">=",
-      "symbol": "GOOGL",
-      "value": 2
+      "value": 350.0
     },
     "goog-percent-down-trailing": {
       "alert_min_cooldown_secs": 300,
@@ -28,33 +21,33 @@
       "symbol": "GOOGL",
       "value": 2
     },
+    "uber-percent-down-trailing": {
+      "alert_min_cooldown_secs": 300,
+      "kind": "price_percent_offset_since_last_alert",
+      "op": "<=",
+      "symbol": "UBER",
+      "value": -2
+    },
+    "uber-percent-up-trailing": {
+      "alert_min_cooldown_secs": 300,
+      "kind": "price_percent_offset_since_last_alert",
+      "op": ">=",
+      "symbol": "UBER",
+      "value": 2
+    },
+    "amzn-value-up-trailing": {
+      "alert_min_cooldown_secs": 300,
+      "kind": "price_value_offset_since_last_alert",
+      "op": ">=",
+      "symbol": "AMZN",
+      "value": 2
+    },
     "gld-price": {
       "alert_min_cooldown_secs": 6000,
       "kind": "price_value",
       "op": ">=",
       "symbol": "GLD",
-      "value": 380
-    },
-    "ttd-price": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_value",
-      "op": ">=",
-      "symbol": "TTD",
-      "value": 58
-    },
-    "ttd-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_value_offset_since_last_alert",
-      "op": ">=",
-      "symbol": "TTD",
-      "value": 2
-    },
-    "ttd-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_percent_offset_since_last_alert",
-      "op": "<=",
-      "symbol": "TTD",
-      "value": -2
+      "value": 450
     },
     "gld-percent-up-trailing": {
       "alert_min_cooldown_secs": 300,
@@ -70,20 +63,6 @@
       "symbol": "GLD",
       "value": -2
     },
-    "lulu-value-up-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_value_offset_since_last_alert",
-      "op": ">=",
-      "symbol": "LULU",
-      "value": 2
-    },
-    "lulu-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_percent_offset_since_last_alert",
-      "op": "<=",
-      "symbol": "LULU",
-      "value": -2
-    },
     "pypl-value-up-trailing": {
       "alert_min_cooldown_secs": 300,
       "kind": "price_value_offset_since_last_alert",
@@ -97,27 +76,12 @@
       "op": "<=",
       "symbol": "PYPL",
       "value": -2
-    },
-    "bull-percent-up-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_percent_offset_since_last_alert",
-      "op": ">=",
-      "symbol": "BULL",
-      "value": 3
-    },
-    "bull-percent-down-trailing": {
-      "alert_min_cooldown_secs": 300,
-      "kind": "price_percent_offset_since_last_alert",
-      "op": "<=",
-      "symbol": "BULL",
-      "value": -3
     }
   },
   "watchlist": [
     "BTC",
     "GLD",
     "GOOGL",
-    "LULU",
     "NVDA",
     "PYPL",
     "TTD"

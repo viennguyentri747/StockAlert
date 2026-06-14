@@ -8,7 +8,7 @@ from stock_alert.data_providers import DataProvider
 from stock_alert.core.cache_utils import *
 
 
-def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, Alert], cache_config: CacheConfig, on_alert: Optional[Callable] = None, on_tick: Optional[Callable] = None, ) -> None:
+def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, Alert], cache_config: CacheConfig, callback_alert_trigger: Optional[Callable] = None, on_tick: Optional[Callable] = None, ) -> None:
     """Fetches quotes for all symbols and checks all alerts once."""
     now_ts = time.time()
     # Create a human-readable timestamp
@@ -29,10 +29,6 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
     last_trigger_ts = cache_data.get(CACHE_FIELD_LAST_ALERTS_TRIGGER_TS, {})
     if not isinstance(last_trigger_ts, dict):
         last_trigger_ts = {}
-
-    alerts_history_cache: Dict[str, List[Dict[str, Any]]] = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
-    if not isinstance(alerts_history_cache, dict):
-        alerts_history_cache = {}
 
     # Use the new schema only: 'old_prices'
     price_history_cache = cache_data.get(CACHE_FIELD_OLD_PRICES, {})
@@ -76,7 +72,8 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
                     except ValueError:
                         last_old_price_update_ts = None
 
-            should_update_old_prices = (last_old_price_update_ts is None or now_ts - last_old_price_update_ts >= old_price_cache_interval)
+            should_update_old_prices = (last_old_price_update_ts is None or now_ts -
+                                        last_old_price_update_ts >= old_price_cache_interval)
             cache_updates[CACHE_FIELD_LAST_UPDATED_TIMESTAMP] = readable_timestamp
             cache_updates[CACHE_FIELD_LATEST_PRICES] = latest_prices_payload
             if should_update_old_prices:
@@ -110,6 +107,10 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
                 cache_updates[CACHE_FIELD_OLD_PRICES] = price_history_cache
 
     alerts_updated = False
+    alerts_history_cache: Dict[str, List[Dict[str, Any]]] = cache_data.get(CACHE_FIELD_ALERTS_HISTORY, {})
+    if not isinstance(alerts_history_cache, dict):
+        alerts_history_cache = {}
+
     for alert_key, alert in alerts.items():
         q = quotes.get(alert.symbol)
         if not q:
@@ -119,7 +120,8 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
         # Get last alert record for this alert name, if any (for checking last trigger and other info)
         last_alert_records = alerts_history_cache.get(alert_key) or []
         # pdb.set_trace()
-        last_record = last_alert_records[-1] if last_alert_records else None # TODO: fix this because log return sth wrong here
+        # TODO: fix this because log return sth wrong here
+        last_record = last_alert_records[-1] if last_alert_records else None
         should_trigger, reason_trigger = alert.should_trigger(q, now_ts, last_ts, last_record)
         LOG(f"Checking alert {alert_key} for {alert.symbol}: {q.price} | last trigger: {last_ts} | last record: {last_record}.  Result: Should trigger: {should_trigger}, Reason: {reason_trigger}")
 
@@ -136,8 +138,8 @@ def run_check(provider: DataProvider, symbols: Iterable[str], alerts: Dict[str, 
                 alerts_history_cache[alert_key] = []
             alerts_history_cache[alert_key].append(alert_single_record)
             alerts_updated = True
-            if on_alert:
-                on_alert(alert_key, alert, q, reason_trigger)
+            if callback_alert_trigger:
+                callback_alert_trigger(alert_key, alert, q, reason_trigger)
 
     if alerts_updated:
         cache_updates[CACHE_FIELD_LAST_ALERTS_TRIGGER_TS] = last_trigger_ts
@@ -167,7 +169,7 @@ def run_loop(
             symbols=symbols,
             alerts=alerts,
             cache_config=cache_config,
-            on_alert=on_alert,
+            callback_alert_trigger=on_alert,
             on_tick=on_tick,
         )
         i += 1
